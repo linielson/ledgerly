@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   scan_ruby:
@@ -20,10 +20,10 @@ jobs:
 
       - name: Scan for common Rails security vulnerabilities using static analysis
         run: bin/brakeman --no-pager
-      
+
       - name: Scan for known security vulnerabilities in gems used
         run: bin/bundler-audit
-      
+
   lint:
     runs-on: ubuntu-latest
     env:
@@ -50,3 +50,24 @@ jobs:
       - name: Lint code for consistent style
         run: bin/rubocop -f github
 
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: ${DB_USER:-ledgerly}
+          POSTGRES_PASSWORD: ${DB_PASSWORD:-ledgerly}
+        ports:
+          - '${DB_PORT:-5434}:5432'
+        options: --health-cmd
+    env:
+      RAILS_ENV: 'test'
+
+    steps:
+      - name: Prepare DB
+        run: db:test:prepare
+
+      - name: Run rspec
+        run: bundle exec rspec
