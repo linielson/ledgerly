@@ -43,6 +43,9 @@ gem "thruster", require: false
 gem "image_processing", "~> 1.2"
 
 group :development, :test do
+  # Testing framework [https://rspec.info/]
+  gem "rspec-rails"
+
   # Load environment variables from .env files in development and test.
   gem "dotenv-rails"
 
