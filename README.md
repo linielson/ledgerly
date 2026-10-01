@@ -21,14 +21,25 @@ Open-source portfolio project. Work in progress.
 ## Getting started
 
 ```sh
-cp .env.example .env   # optional: the defaults already match compose.yaml
 docker compose up -d   # start PostgreSQL on port 5434
-bin/setup              # install dependencies and prepare the database
-bin/dev                # run the app at http://localhost:3000
+bin/setup              # first run: set everything up and start the app at http://localhost:3000
+```
+
+`bin/setup` creates `.env` from `.env.example` when it is missing, installs gems and JS packages,
+prepares the database and then starts `bin/dev`. It is safe to run again: an existing `.env` is kept.
+Use `bin/setup --skip-server` to prepare without starting the app.
+
+After the first setup, start the app with:
+
+```sh
+bin/dev
 ```
 
 `bin/dev` runs three processes from `Procfile.dev`: the Rails server and the JS and CSS watchers.
 If the app loads without styles or JavaScript, check that both watchers are running.
+
+The defaults in `.env.example` match `compose.yaml`. If port 5434 is taken on your machine,
+change `DB_PORT` in `.env`; Docker Compose and Rails both read it.
 
 ## Running the tests
 
@@ -45,4 +56,4 @@ bin/brakeman
 
 ## License
 
-MIT
+[MIT](LICENSE)
