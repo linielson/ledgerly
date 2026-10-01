@@ -66,5 +66,6 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 
+  # RSpec support for the Ruby LSP editor integration (run and debug specs from the editor)
   gem "ruby-lsp-rspec", require: false
 end
