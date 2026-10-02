@@ -56,6 +56,10 @@ bin/rubocop
 bin/brakeman
 ```
 
+## Conventions
+
+See [docs/conventions.md](docs/conventions.md).
+
 ## License
 
 [MIT](LICENSE)
