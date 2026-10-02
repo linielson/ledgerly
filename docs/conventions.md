@@ -9,7 +9,8 @@ Rails templates close to the generated version.**
 
 ### What gets pruned
 
-Anything the app doesn't use, together with whatever it brought along. Removed so far:
+Anything the app doesn't use, together with whatever it brought along. The initial cleanup (T-008) as an example;
+later removals are recorded in their PRs, not here:
 
 | Removed | Why |
 | --- | --- |
