@@ -1,6 +1,6 @@
 # Ledgerly
 
-[![CI](https://github.com/linielson/ledgerly/actions/workflows/ci.yml)](https://github.com/linielson/ledgerly/actions/workflows/ci.yml/badge.svg?branch=main)
+[![CI](https://github.com/linielson/ledgerly/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/linielson/ledgerly/actions/workflows/ci.yml)
 
 Invoicing for freelancers and small agencies: issue invoices split into installments, collect payment
 through a gateway, handle refunds, and keep every cent in an immutable double-entry ledger.
