@@ -39,6 +39,12 @@ Dead code means commented-out code and unused files. Git keeps the history; the 
   chain in `Gemfile.lock`. A gem named after a C library (`ruby-vips`, `pg`) or depending on `ffi` usually needs a
   system package. Then search the repo for its name (`git grep -n <name>`): the `Dockerfile`, initializers, environment
   variables and CI.
+- **Put each gem in the narrowest group that works.** Test-only gems (`simplecov`, `undercover`) go in `:test`,
+  editor tooling in `:development`. The production image is built with `BUNDLE_WITHOUT="development:test"`:
+  Bundler only skips a gem when all of its groups are excluded, so a gem in `:development, :test` would still
+  ship to production if only `development` were excluded.
+- **Adding a gem can add a system requirement too.** `undercover` depends on `rugged`, which compiles libgit2 with
+  CMake: CMake went into the README requirements (the CI runner already has it).
 - **When removing a feature, read the surrounding file, not just the search results.** A keyword search finds what has
   the name, not what has the purpose: the PWA meta tags never mentioned "pwa".
 

@@ -64,3 +64,10 @@ group :development do
   # RSpec support for the Ruby LSP editor integration (run and debug specs from the editor)
   gem "ruby-lsp-rspec", require: false
 end
+
+group :test do
+  # Code coverage for the test suite [https://github.com/simplecov-ruby/simplecov]
+  gem "simplecov", require: false
+  # Fails CI when changed code isn't covered by tests [https://github.com/grodowski/undercover]
+  gem "undercover", require: false
+end
