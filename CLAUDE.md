@@ -22,18 +22,21 @@ double-entry ledger. Open-source portfolio project.
 ## Domain rules (do not break these)
 
 ### Money
+
 - Amounts are integer minor units plus an ISO currency code. Never use Float for money, not even for display.
 - Use the `Money` value object; it is immutable and raises on currency mismatch.
 - Splitting money uses allocation: the parts always sum to the original total.
 - Percentages use `BigDecimal`/`Rational` with the rounding mode documented in the ADRs.
 
 ### Invoices and installments
+
 - Invoice states: `draft`, `open`, `paid`, `void`. "Overdue" is derived (open + past due date), never stored.
 - Refunds are records attached to payments, not an invoice state.
 - Every invoice has one or more installments. Payments belong to installments.
 - An invoice with a paid installment cannot be voided; refund first.
 
 ### Ledger
+
 - Double-entry: each ledger transaction has two or more entries with signed cents that sum to zero.
 - Append-only: entries are never updated or deleted (enforced by a database trigger). Corrections are reversing entries.
 - Every entry has `occurred_at` (when it happened) and `posted_at` (when it was recorded).
@@ -41,6 +44,7 @@ double-entry ledger. Open-source portfolio project.
   Closed periods reject new postings; late events are posted to the open day.
 
 ### Tenancy
+
 - All data is scoped to a tenant. Never query tenant-owned records without the tenant scope.
 
 ## Conventions
