@@ -47,8 +47,18 @@ jobs:
       - name: Install JavaScript dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Scan for known security vulnerabilities in JavaScript packages
-        run: yarn audit
+  dependency_review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Block pull requests that introduce vulnerable dependencies
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: moderate
 
   lint:
     runs-on: ubuntu-24.04
