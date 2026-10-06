@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# Advisory AI reviewer: it comments, it never blocks a merge (blocking checks are CI, CodeQL and dependency review).
+# Domain rules come from CLAUDE.md, which CodeRabbit reads automatically as code guidelines; don't list it below.
+language: en-US
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  assess_linked_issues: true
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: false
+  # Instructions are added by the ticket that introduces the code they cover (migrations in E1/E2, ledger in E5),
+  # not ahead of time; domain rules that already exist live in CLAUDE.md.
+  path_instructions:
+    - path: "spec/**"
+      instructions: >-
+        Check that tests cover failure paths, not just the happy path. Flag tests that pass without asserting
+        behavior and tests that depend on wall-clock time without freezing it. Spec types must be declared
+        explicitly (`type: :request`, `type: :model`).
+    - path: ".github/workflows/**"
+      instructions: >-
+        Every action must be pinned to a full commit SHA with the version in a trailing comment. The workflow-level
+        token stays `contents: read`; a job that needs more declares its own `permissions`. Runners are pinned
+        (no `ubuntu-latest`). Flag secrets echoed to logs, `pull_request_target` usage, and untrusted input
+        (titles, branch names, issue bodies) interpolated directly into `run:` scripts.
