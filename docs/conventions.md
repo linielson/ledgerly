@@ -1,6 +1,7 @@
 # Conventions
 
-Working rules for this repository: how we work day to day. Architecture decisions go in `docs/adr/`.
+Working rules for this repository: how we work day to day. Architecture decisions go in `docs/adr/`;
+CI and review checks are described in [ci.md](ci.md).
 
 ## Generated code
 

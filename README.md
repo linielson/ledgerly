@@ -59,7 +59,8 @@ bin/brakeman
 
 ## Conventions
 
-See [docs/conventions.md](docs/conventions.md).
+- [docs/conventions.md](docs/conventions.md): how we work day to day
+- [docs/ci.md](docs/ci.md): what runs on every pull request and what blocks a merge
 
 ## License
 
