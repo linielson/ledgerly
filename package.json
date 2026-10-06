@@ -2,6 +2,7 @@
   "name": "ledgerly",
   "private": true,
   "devDependencies": {
+    "editorconfig-checker": "7.0.0",
     "esbuild": "^0.28.2",
     "prettier": "3.9.9"
   },
@@ -9,7 +10,8 @@
     "build": "esbuild app/javascript/*.* --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets",
     "build:css": "npx @tailwindcss/cli -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/application.css --minify",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "lint:editorconfig": "editorconfig-checker"
   },
   "dependencies": {
     "@hotwired/stimulus": "^3.2.2",
