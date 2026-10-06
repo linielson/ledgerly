@@ -13,13 +13,13 @@ Rails templates close to the generated version.**
 Anything the app doesn't use, together with whatever it brought along. The initial cleanup (T-008) as an example;
 later removals are recorded in their PRs, not here:
 
-| Removed | Why |
-| --- | --- |
-| `jbuilder` | No JSON API planned |
-| `image_processing` (with `mini_magick`, `ruby-vips`, `ffi`) | No Active Storage image variants |
-| `libvips` in the `Dockerfile` | Only needed by `image_processing`; the production image no longer ships an unused native library |
-| PWA scaffolding (`app/views/pwa/`, routes, manifest tag, `*-web-app-capable` meta tags) | The app isn't meant to be installed |
-| Generated comments in `config/database.yml` and `config/routes.rb` | These files are ours now; generic instructions live in the Rails guides |
+| Removed                                                                                 | Why                                                                                              |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `jbuilder`                                                                              | No JSON API planned                                                                              |
+| `image_processing` (with `mini_magick`, `ruby-vips`, `ffi`)                             | No Active Storage image variants                                                                 |
+| `libvips` in the `Dockerfile`                                                           | Only needed by `image_processing`; the production image no longer ships an unused native library |
+| PWA scaffolding (`app/views/pwa/`, routes, manifest tag, `*-web-app-capable` meta tags) | The app isn't meant to be installed                                                              |
+| Generated comments in `config/database.yml` and `config/routes.rb`                      | These files are ours now; generic instructions live in the Rails guides                          |
 
 Dead code means commented-out code and unused files. Git keeps the history; the codebase doesn't need to.
 
@@ -62,3 +62,10 @@ A comment earns its place by saying something the code can't:
 
 Comments that restate what the code does, or copy framework documentation into the file, get deleted.
 A link to that documentation is fine.
+
+## Runtimes
+
+Node, Ruby and Rails stay on a supported release line. Check the end-of-life date whenever a ticket touches a runtime
+(Node: github.com/nodejs/Release, Ruby: ruby-lang.org, Rails: rubyonrails.org/maintenance), and upgrade in a PR of its
+own. Dependabot and dependency review watch packages, not runtimes: Node 20 ran five months past its end of life
+before a package requirement exposed it.
