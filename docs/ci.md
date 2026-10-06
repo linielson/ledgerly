@@ -16,15 +16,15 @@ for admins:
 
 ## Checks
 
-| Check | What it does | Blocks merge | Configured in |
-| --- | --- | --- | --- |
-| `test` | RSpec against PostgreSQL 18 (service container, same image as `compose.yaml`); then `undercover` fails if code changed in the PR isn't executed by any test | Yes | `.github/workflows/ci.yml`, `spec/spec_helper.rb` |
-| `lint` | RuboCop (Rails omakase) | Yes | `.github/workflows/ci.yml`, `.rubocop.yml` |
-| `scan_ruby` | Brakeman (Rails security patterns) and bundler-audit (known vulnerable gems) | Yes | `.github/workflows/ci.yml` |
-| `scan_js` | `yarn install --frozen-lockfile`: fails if `package.json` and `yarn.lock` disagree | Yes | `.github/workflows/ci.yml` |
-| `dependency_review` | Fails if the PR introduces a dependency with a known vulnerability of moderate severity or above (pull requests only) | Yes | `.github/workflows/ci.yml` |
-| CodeQL | Data-flow security analysis for Ruby, JavaScript/TypeScript and GitHub Actions; annotates the PR | Yes, through the ruleset thresholds above | GitHub: Settings → Code security (default setup, query suite Default) |
-| CodeRabbit | AI review: summary, security notes, line comments; reads `CLAUDE.md` as guidelines | No, advisory only | `.coderabbit.yaml`, GitHub App installed on this repository |
+| Check               | What it does                                                                                                                                                | Blocks merge                              | Configured in                                                         |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------- |
+| `test`              | RSpec against PostgreSQL 18 (service container, same image as `compose.yaml`); then `undercover` fails if code changed in the PR isn't executed by any test | Yes                                       | `.github/workflows/ci.yml`, `spec/spec_helper.rb`                     |
+| `lint`              | RuboCop (Rails omakase)                                                                                                                                     | Yes                                       | `.github/workflows/ci.yml`, `.rubocop.yml`                            |
+| `scan_ruby`         | Brakeman (Rails security patterns) and bundler-audit (known vulnerable gems)                                                                                | Yes                                       | `.github/workflows/ci.yml`                                            |
+| `scan_js`           | `yarn install --frozen-lockfile`: fails if `package.json` and `yarn.lock` disagree                                                                          | Yes                                       | `.github/workflows/ci.yml`                                            |
+| `dependency_review` | Fails if the PR introduces a dependency with a known vulnerability of moderate severity or above (pull requests only)                                       | Yes                                       | `.github/workflows/ci.yml`                                            |
+| CodeQL              | Data-flow security analysis for Ruby, JavaScript/TypeScript and GitHub Actions; annotates the PR                                                            | Yes, through the ruleset thresholds above | GitHub: Settings → Code security (default setup, query suite Default) |
+| CodeRabbit          | AI review: summary, security notes, line comments; reads `CLAUDE.md` as guidelines                                                                          | No, advisory only                         | `.coderabbit.yaml`, GitHub App installed on this repository           |
 
 The ruleset itself, CodeQL default setup, Dependabot alerts and security updates, and the CodeRabbit installation are
 GitHub settings: they don't appear in any diff.
@@ -46,11 +46,11 @@ Two models, on purpose.
 
 **JavaScript: judge the pull request, track the rest.**
 
-| Role | Mechanism | Where |
-| --- | --- | --- |
-| Gate | `dependency_review` blocks vulnerabilities a PR introduces | `.github/workflows/ci.yml` |
-| Inventory | Dependabot alerts list vulnerabilities in dependencies already installed | GitHub: Security tab |
-| Fix | Dependabot security updates open a PR when a patched version exists | GitHub settings |
+| Role          | Mechanism                                                                                                     | Where                       |
+| ------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| Gate          | `dependency_review` blocks vulnerabilities a PR introduces                                                    | `.github/workflows/ci.yml`  |
+| Inventory     | Dependabot alerts list vulnerabilities in dependencies already installed                                      | GitHub: Security tab        |
+| Fix           | Dependabot security updates open a PR when a patched version exists                                           | GitHub settings             |
 | Accepted risk | An alert with no fix is dismissed as "Risk is tolerable" with a written justification and a revisit condition | GitHub: the alert's history |
 
 Yarn 1's `yarn audit` was dropped because it can't accept a single advisory: an unfixable, unreachable vulnerability
@@ -80,6 +80,7 @@ bundle exec undercover --compare origin/main  # after `bundle exec rspec`
 open coverage/index.html                      # coverage report
 ```
 
-`bin/ci` doesn't cover everything: dependency review, CodeQL and CodeRabbit need GitHub, so they only run on pull
-requests. The lockfile check (`scan_js`) also runs only in GitHub Actions; `bin/setup` installs with
-`yarn install --check-files`, which verifies installed files but doesn't fail on a stale `yarn.lock`.
+`bin/ci` doesn't cover everything: dependency review, CodeQL and CodeRabbit run only in GitHub. Dependency review and
+CodeRabbit run on pull requests; CodeQL also scans every push to `main` and runs weekly. The lockfile check (`scan_js`)
+also runs only in GitHub Actions; `bin/setup` installs with `yarn install --check-files`, which verifies installed
+files but doesn't fail on a stale `yarn.lock`.
