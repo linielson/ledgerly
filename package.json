@@ -1,6 +1,7 @@
 {
   "name": "ledgerly",
   "private": true,
+  "packageManager": "yarn@1.22.22",
   "engines": {
     "node": ">=24.14"
   },

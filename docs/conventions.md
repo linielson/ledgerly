@@ -89,3 +89,6 @@ Node, Ruby and Rails stay on a supported release line. Check the end-of-life dat
 (Node: github.com/nodejs/Release, Ruby: ruby-lang.org, Rails: rubyonrails.org/maintenance), and upgrade in a PR of its
 own. Dependabot and dependency review watch packages, not runtimes: Node 20 ran five months past its end of life
 before a package requirement exposed it.
+
+The package manager is pinned too: `package.json` declares `"packageManager": "yarn@1.22.22"`, and Corepack (bundled with
+Node 24; `corepack enable` once per machine) runs exactly that Yarn version. Keep `YARN_VERSION` in the `Dockerfile` in sync.

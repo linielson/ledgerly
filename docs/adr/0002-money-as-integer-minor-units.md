@@ -31,9 +31,9 @@ Options considered:
 - **Invalid input raises**; nothing fails silently.
 - Persisted as `amount_cents bigint NOT NULL` plus a currency column with a format check constraint.
 
-Two details are decided by the tickets that implement them, and recorded here when they are:
+Two details are left open on purpose and get ADRs of their own when the tickets that implement them decide:
 
-- the rounding mode, half-up or half-even (T-105);
+- the rounding mode for percentages, half-up or half-even (T-105);
 - `composed_of` or a small macro of our own to map the two columns (T-106).
 
 ## Consequences
