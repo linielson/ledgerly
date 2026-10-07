@@ -57,10 +57,11 @@ bin/rubocop
 bin/brakeman
 ```
 
-## Conventions
+## Conventions and decisions
 
 - [docs/conventions.md](docs/conventions.md): how we work day to day
 - [docs/ci.md](docs/ci.md): what runs on every pull request and what blocks a merge
+- [docs/adr/](docs/adr/README.md): architecture decision records (money, installments, ledger, and more)
 
 ## License
 
