@@ -17,7 +17,7 @@ Open-source portfolio project. Work in progress.
 ## Requirements
 
 - Ruby 4.0.5 (see `.ruby-version`)
-- Node.js 20 (see `.node-version`) and Yarn
+- Node.js 24 (see `.node-version`) and Yarn 1, pinned in `package.json` (`packageManager`): run `corepack enable` once
 - Docker, for the local PostgreSQL and the EditorConfig check
 - CMake, to build the `rugged` gem that `undercover` uses in the test suite (`brew install cmake` on macOS)
 
