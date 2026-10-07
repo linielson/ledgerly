@@ -1,6 +1,6 @@
 # NNNN. Title in the imperative or as the decision itself
 
-- **Status:** Proposed | Accepted | Superseded by ADR-NNNN
+- **Status:** Proposed | Accepted | Accepted, supersedes ADR-NNNN | Superseded by ADR-NNNN
 - **Date:** YYYY-MM-DD
 - **Ticket:** T-NNN (#issue, PR #nn)
 
