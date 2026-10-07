@@ -1,0 +1,3 @@
+# Formatting-only commits, skipped by git blame and GitHub.
+# T-009: Prettier applied to the whole repository.
+05469c2e3a5f9dc164c5472e3baf5772e5b59735
