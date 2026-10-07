@@ -36,6 +36,8 @@ Dead code means commented-out code and unused files. Git keeps the history; the 
 
 - **A gem enters only when a ticket needs it**, in that ticket's PR, with the reason in the PR description.
   Nothing is added because it might be useful later.
+- **Version constraints lock the major version** of runtime gems (`"~> 8.0"`): the lockfile pins exact versions and
+  Dependabot proposes major upgrades as their own PRs. Open-ended constraints (`">= 5.0"`) are not used.
 - **When a gem leaves, so does what it brought outside Ruby.** Read its README for system requirements and follow the
   chain in `Gemfile.lock`. A gem named after a C library (`ruby-vips`, `pg`) or depending on `ffi` usually needs a
   system package. Then search the repo for its name (`git grep -n <name>`): the `Dockerfile`, initializers, environment
@@ -62,6 +64,24 @@ A comment earns its place by saying something the code can't:
 
 Comments that restate what the code does, or copy framework documentation into the file, get deleted.
 A link to that documentation is fine.
+
+## Formatting
+
+One config in the repo, read by both CI and the editor; nobody configures formatting in their own editor.
+
+| Files                                                          | Tool                                              | Config                           |
+| -------------------------------------------------------------- | ------------------------------------------------- | -------------------------------- |
+| Ruby                                                           | RuboCop, with `rubocop-rails-omakase` as the base | `.rubocop.yml`                   |
+| YAML, JS/TS, CSS, Markdown, JSON                               | Prettier, default options, version pinned exactly | `.prettierrc`, `.prettierignore` |
+| Every file: encoding, line endings, final newline, indentation | EditorConfig                                      | `.editorconfig`                  |
+
+- Rails-generated files tracked by `app:update` (`config/**/*.yml`, `public/`) and the Stimulus manifest are not
+  reformatted by Prettier.
+- Omakase is minimal on purpose. Quality cops (`rubocop-rspec`, `rubocop-performance`) are added by the tickets that
+  need them.
+- VS Code formats on save with this config (`.vscode/settings.json`); the recommended extensions are in
+  `.vscode/extensions.json`.
+- CI checks all of it: `lint` (RuboCop) and `format` (Prettier and EditorConfig). So does `bin/ci`.
 
 ## Runtimes
 
