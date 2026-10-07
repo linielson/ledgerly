@@ -12,6 +12,7 @@ indent_size = 2
 # Two trailing spaces are a line break in Markdown.
 [*.md]
 trim_trailing_whitespace = false
+indent_size = unset
 
 # Encrypted credentials: edit only with `bin/rails credentials:edit`; the editor must not touch the bytes.
 [*.enc]
