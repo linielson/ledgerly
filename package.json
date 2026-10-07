@@ -5,7 +5,6 @@
     "node": ">=24.14"
   },
   "devDependencies": {
-    "editorconfig-checker": "7.0.0",
     "esbuild": "^0.28.2",
     "prettier": "3.9.9"
   },
@@ -14,7 +13,7 @@
     "build:css": "npx @tailwindcss/cli -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/application.css --minify",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint:editorconfig": "editorconfig-checker"
+    "lint:editorconfig": "docker run --rm -v \"$PWD\":/check:ro -w /check mstruebing/editorconfig-checker:4.0.2@sha256:2ba6232bfa0058f72f5f7d7816711590aa764afab1542af30b3ecb4553587918"
   },
   "dependencies": {
     "@hotwired/stimulus": "^3.2.2",

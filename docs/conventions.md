@@ -73,7 +73,7 @@ One config in the repo, read by both CI and the editor; nobody configures format
 | -------------------------------------------------------------- | ------------------------------------------------- | -------------------------------- |
 | Ruby                                                           | RuboCop, with `rubocop-rails-omakase` as the base | `.rubocop.yml`                   |
 | YAML, JS/TS, CSS, Markdown, JSON                               | Prettier, default options, version pinned exactly | `.prettierrc`, `.prettierignore` |
-| Every file: encoding, line endings, final newline, indentation | EditorConfig                                      | `.editorconfig`                  |
+| Every file: encoding, line endings, final newline, indentation | EditorConfig, checked by editorconfig-checker     | `.editorconfig`                  |
 
 - Rails-generated files tracked by `app:update` (`config/**/*.yml`, `public/`) and the Stimulus manifest are not
   reformatted by Prettier.

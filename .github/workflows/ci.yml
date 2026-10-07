@@ -31,22 +31,6 @@ jobs:
       - name: Scan for known security vulnerabilities in gems used
         run: bin/bundler-audit
 
-  scan_js:
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Set up Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version-file: .node-version
-          cache: yarn
-
-      - name: Install JavaScript dependencies
-        run: yarn install --frozen-lockfile
-
   dependency_review:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
@@ -99,7 +83,7 @@ jobs:
           node-version-file: .node-version
           cache: yarn
 
-      - name: Install JavaScript dependencies
+      - name: Install JavaScript dependencies (fails if yarn.lock is out of date)
         run: yarn install --frozen-lockfile
 
       - name: Check formatting (Prettier)

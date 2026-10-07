@@ -16,15 +16,15 @@ for admins:
 
 ## Checks
 
-| Check               | What it does                                                                                                                                                | Blocks merge                              | Configured in                                                         |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------- |
-| `test`              | RSpec against PostgreSQL 18 (service container, same image as `compose.yaml`); then `undercover` fails if code changed in the PR isn't executed by any test | Yes                                       | `.github/workflows/ci.yml`, `spec/spec_helper.rb`                     |
-| `lint`              | RuboCop (Rails omakase)                                                                                                                                     | Yes                                       | `.github/workflows/ci.yml`, `.rubocop.yml`                            |
-| `scan_ruby`         | Brakeman (Rails security patterns) and bundler-audit (known vulnerable gems)                                                                                | Yes                                       | `.github/workflows/ci.yml`                                            |
-| `scan_js`           | `yarn install --frozen-lockfile`: fails if `package.json` and `yarn.lock` disagree                                                                          | Yes                                       | `.github/workflows/ci.yml`                                            |
-| `dependency_review` | Fails if the PR introduces a dependency with a known vulnerability of moderate severity or above (pull requests only)                                       | Yes                                       | `.github/workflows/ci.yml`                                            |
-| CodeQL              | Data-flow security analysis for Ruby, JavaScript/TypeScript and GitHub Actions; annotates the PR                                                            | Yes, through the ruleset thresholds above | GitHub: Settings → Code security (default setup, query suite Default) |
-| CodeRabbit          | AI review: summary, security notes, line comments; reads `CLAUDE.md` as guidelines                                                                          | No, advisory only                         | `.coderabbit.yaml`, GitHub App installed on this repository           |
+| Check               | What it does                                                                                                                                                                                                            | Blocks merge                              | Configured in                                                                 |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------- |
+| `test`              | RSpec against PostgreSQL 18 (service container, same image as `compose.yaml`); then `undercover` fails if code changed in the PR isn't executed by any test                                                             | Yes                                       | `.github/workflows/ci.yml`, `spec/spec_helper.rb`                             |
+| `lint`              | RuboCop (Rails omakase)                                                                                                                                                                                                 | Yes                                       | `.github/workflows/ci.yml`, `.rubocop.yml`                                    |
+| `scan_ruby`         | Brakeman (Rails security patterns) and bundler-audit (known vulnerable gems)                                                                                                                                            | Yes                                       | `.github/workflows/ci.yml`                                                    |
+| `format`            | `yarn install --frozen-lockfile` (fails if `package.json` and `yarn.lock` disagree), Prettier (`yarn format:check`) and EditorConfig (`yarn lint:editorconfig`, the editorconfig-checker Docker image pinned by digest) | Yes                                       | `.github/workflows/ci.yml`, `.prettierrc`, `.prettierignore`, `.editorconfig` |
+| `dependency_review` | Fails if the PR introduces a dependency with a known vulnerability of moderate severity or above (pull requests only)                                                                                                   | Yes                                       | `.github/workflows/ci.yml`                                                    |
+| CodeQL              | Data-flow security analysis for Ruby, JavaScript/TypeScript and GitHub Actions; annotates the PR                                                                                                                        | Yes, through the ruleset thresholds above | GitHub: Settings → Code security (default setup, query suite Default)         |
+| CodeRabbit          | AI review: summary, security notes, line comments; reads `CLAUDE.md` as guidelines                                                                                                                                      | No, advisory only                         | `.coderabbit.yaml`, GitHub App installed on this repository                   |
 
 The ruleset itself, CodeQL default setup, Dependabot alerts and security updates, and the CodeRabbit installation are
 GitHub settings: they don't appear in any diff.
@@ -69,18 +69,22 @@ Dependabot version updates (weekly PRs for bundler, npm and GitHub Actions) are 
 - Every action is pinned to a full commit SHA with its version in a comment; Dependabot updates both.
   Tags can be moved by an action's owner, as in the 2025 tj-actions/changed-files incident.
 - The runner is pinned (`ubuntu-24.04`) and upgraded deliberately by PR.
+- The EditorConfig check runs the official editorconfig-checker image pinned by digest (`package.json`, script
+  `lint:editorconfig`), not the npm wrapper: the wrapper exits 0 on unexpected errors, so a crash would pass the check.
+  Dependabot doesn't see images referenced in scripts; bump the tag and digest by hand in a PR of its own.
+  It checks files tracked by git: a new file is checked after `git add`.
 - The workflow token is `contents: read`; a job that needs more declares its own `permissions`.
 - Superseded runs are cancelled on pull requests only; runs on `main` always finish.
 
 ## Running checks locally
 
 ```sh
-bin/ci                                        # setup, RuboCop, bundler-audit, Brakeman, RSpec
+bin/ci                                        # setup, RuboCop, Prettier, EditorConfig, bundler-audit, Brakeman, RSpec
 bundle exec undercover --compare origin/main  # after `bundle exec rspec`
 open coverage/index.html                      # coverage report
 ```
 
 `bin/ci` doesn't cover everything: dependency review, CodeQL and CodeRabbit run only in GitHub. Dependency review and
-CodeRabbit run on pull requests; CodeQL also scans every push to `main` and runs weekly. The lockfile check (`scan_js`)
+CodeRabbit run on pull requests; CodeQL also scans every push to `main` and runs weekly. The lockfile check (in the `format` job)
 also runs only in GitHub Actions; `bin/setup` installs with `yarn install --check-files`, which verifies installed
 files but doesn't fail on a stale `yarn.lock`.

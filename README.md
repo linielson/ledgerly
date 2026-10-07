@@ -18,7 +18,7 @@ Open-source portfolio project. Work in progress.
 
 - Ruby 4.0.5 (see `.ruby-version`)
 - Node.js 20 (see `.node-version`) and Yarn
-- Docker, for the local PostgreSQL
+- Docker, for the local PostgreSQL and the EditorConfig check
 - CMake, to build the `rugged` gem that `undercover` uses in the test suite (`brew install cmake` on macOS)
 
 ## Getting started
