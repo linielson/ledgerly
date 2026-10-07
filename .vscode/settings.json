@@ -1,0 +1,10 @@
+{
+  "editor.formatOnSave": true,
+  "prettier.requireConfig": true,
+  "[ruby]": {
+    "editor.defaultFormatter": "Shopify.ruby-lsp"
+  },
+  "[javascript][json][jsonc][yaml][markdown][css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

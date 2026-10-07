@@ -47,3 +47,9 @@ CLAUDE.local.md
 
 # Ignore coverage files
 /coverage
+
+# Editor: share only the project-level VS Code config; personal files stay out.
+!/.vscode/
+/.vscode/*
+!/.vscode/settings.json
+!/.vscode/extensions.json
