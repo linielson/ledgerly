@@ -86,6 +86,8 @@ RSpec.describe Currency do
     it "cloned currency is the same as the original one" do
       brl = Currency.fetch("BRL")
       expect(brl.clone).to be(brl)
+      expect(brl.clone(freeze: false)).to be(brl)
+      expect(brl.clone(freeze: true)).to be(brl)
     end
   end
 
