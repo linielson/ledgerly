@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Data freezes the instance, not its members: the literal strings below must be frozen too.
 class Currency < Data.define(:code, :symbol, :exponent)
   class UnknownCurrencyError < ArgumentError; end
 
@@ -9,7 +12,8 @@ class Currency < Data.define(:code, :symbol, :exponent)
   }.freeze
 
   def self.fetch(code)
-    CURRENCIES.fetch(code.to_s.upcase) { raise UnknownCurrencyError, "Unknown currency: #{code.inspect}" }
+    key = code.to_s.upcase if code.is_a?(String) || code.is_a?(Symbol)
+    CURRENCIES.fetch(key) { raise UnknownCurrencyError, "Unknown currency: #{code.inspect}" }
   end
 
   def clone(freeze: nil) = self
