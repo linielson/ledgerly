@@ -78,6 +78,9 @@ RUN rm -rf node_modules
 # Final stage for app image
 FROM base
 
+# Links the image in GitHub Container Registry to this repository, so the CI deploy job can push with GITHUB_TOKEN.
+LABEL org.opencontainers.image.source="https://github.com/linielson/ledgerly"
+
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash

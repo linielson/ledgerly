@@ -130,3 +130,48 @@ jobs:
 
       - name: Check that changed code is covered
         run: bundle exec undercover --compare origin/main
+
+  # Continuous deployment: every push to main that passes the checks above ships with Kamal (docs/deploy.md).
+  deploy:
+    needs: [scan_ruby, lint, format, test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # The server is arm64; GitHub's arm64 runners are free for public repositories and build natively.
+    runs-on: ubuntu-24.04-arm
+    environment:
+      name: production
+      url: https://ledgerly.129-213-35-35.sslip.io
+    permissions:
+      contents: read
+      # Push the image to ghcr.io with GITHUB_TOKEN; the package is linked to this repo by a Dockerfile label.
+      packages: write
+    # One deploy at a time, and a running deploy is never cancelled.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@14594264cd68ce8a2345dd349bc3d138a4ef85c8 # v1.327.0
+        with:
+          bundler-cache: true
+
+      - name: Set up SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # Pinned host key: a server presenting a different key is rejected instead of trusted on first use.
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Deploy with Kamal
+        env:
+          KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+          LEDGERLY_DATABASE_PASSWORD: ${{ secrets.LEDGERLY_DATABASE_PASSWORD }}
+        run: bin/kamal deploy
