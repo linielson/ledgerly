@@ -57,6 +57,10 @@ bin/rubocop
 bin/brakeman
 ```
 
+## Deployment
+
+Kamal to an Oracle Cloud Always Free server: see [docs/deploy.md](docs/deploy.md).
+
 ## Conventions and decisions
 
 - [docs/conventions.md](docs/conventions.md): how we work day to day
