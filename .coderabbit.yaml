@@ -12,6 +12,10 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
+  # Comments explain why, not what (docs/conventions.md), so docstring coverage doesn't apply.
+  pre_merge_checks:
+    docstrings:
+      mode: "off"
   # Instructions are added by the ticket that introduces the code they cover (migrations in E1/E2, ledger in E5),
   # not ahead of time; domain rules that already exist live in CLAUDE.md.
   path_instructions:

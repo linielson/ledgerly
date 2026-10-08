@@ -52,6 +52,13 @@ RSpec.describe Currency do
       it "raises for a non-string code" do
         expect { Currency.fetch(42) }.to raise_error(Currency::UnknownCurrencyError, "Unknown currency: 42")
       end
+
+      it "raises for an object whose to_s is a known code" do
+        lookalike = Object.new
+        def lookalike.to_s = "BRL"
+
+        expect { Currency.fetch(lookalike) }.to raise_error(Currency::UnknownCurrencyError, /Unknown currency: #<Object/)
+      end
     end
   end
 
@@ -78,16 +85,25 @@ RSpec.describe Currency do
       expect(Currency.fetch("BRL")).to be_frozen
     end
 
-    it "duplicated currency is the same as the original one" do
+    it "#dup returns the same object" do
       brl = Currency.fetch("BRL")
+
       expect(brl.dup).to be(brl)
     end
 
-    it "cloned currency is the same as the original one" do
+    it "#clone returns the same object, whatever freeze: says" do
       brl = Currency.fetch("BRL")
+
       expect(brl.clone).to be(brl)
       expect(brl.clone(freeze: false)).to be(brl)
       expect(brl.clone(freeze: true)).to be(brl)
+    end
+
+    it "has frozen code and symbol strings" do
+      brl = Currency.fetch("BRL")
+
+      expect { brl.code << "X" }.to raise_error(FrozenError)
+      expect { brl.symbol.replace("X") }.to raise_error(FrozenError)
     end
   end
 
