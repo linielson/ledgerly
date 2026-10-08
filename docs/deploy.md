@@ -136,19 +136,23 @@ Every push to `main` that passes `scan_ruby`, `lint`, `format` and `test` runs t
 `.github/workflows/ci.yml`, which runs `bin/kamal deploy` on a GitHub `ubuntu-24.04-arm` runner. Deploys show up on the
 repository's **Environments → production** page.
 
-| Piece          | How it's set up                                                                                                                                                                                                                                            |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Registry login | `GITHUB_TOKEN` with `packages: write`, only in this job. The image is linked to the repo by the `org.opencontainers.image.source` label in the `Dockerfile`, and the package grants the repository write access (package settings → Manage Actions access) |
-| SSH            | A dedicated deploy key (`ledgerly-ci-deploy`, ed25519), not a personal key. Its public half is in the server's `~/.ssh/authorized_keys`; the private half exists only as the `SSH_PRIVATE_KEY` secret                                                      |
-| Host key       | Pinned: `SSH_KNOWN_HOSTS` holds the server's ed25519 key (fingerprint `SHA256:syVSQUpruRNfoQbdPRyfi4I+ffYyzVc8eX3vRyeJV74`), so a different server is rejected instead of trusted on first use                                                             |
-| App secrets    | `RAILS_MASTER_KEY` and `LEDGERLY_DATABASE_PASSWORD` as secrets of the `production` environment                                                                                                                                                             |
-| Concurrency    | One deploy at a time (`deploy-production`), and a running deploy is never cancelled                                                                                                                                                                        |
+| Piece          | How it's set up                                                                                                                                                                                                                                                                                       |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registry login | `GITHUB_TOKEN` with `packages: write`, only in this job. The image is linked to the repo by the `org.opencontainers.image.source` label in the `Dockerfile`, and the package grants the repository write access (package settings → Manage Actions access)                                            |
+| SSH            | A dedicated deploy key (`ledgerly-ci-deploy`, ed25519), not a personal key. Its public half is in the server's `~/.ssh/authorized_keys`; the private half exists only as the `SSH_PRIVATE_KEY` secret                                                                                                 |
+| Host key       | Pinned: `SSH_KNOWN_HOSTS` holds the server's ed25519 key (fingerprint `SHA256:syVSQUpruRNfoQbdPRyfi4I+ffYyzVc8eX3vRyeJV74`), so a different server is rejected instead of trusted on first use. Verified: Net::SSH, which Kamal uses, raises `HostKeyMismatch` against a known_hosts with another key |
+| App secrets    | `RAILS_MASTER_KEY` and `LEDGERLY_DATABASE_PASSWORD` as secrets of the `production` environment                                                                                                                                                                                                        |
+| Concurrency    | One deploy at a time (`deploy-production`), and a running deploy is never cancelled                                                                                                                                                                                                                   |
 
-To revoke CI access, remove the `ledgerly-ci-deploy` line from `~/.ssh/authorized_keys` on the server and delete the
+The deploy key is effectively root on the server (`ubuntu` is in the `docker` group, and Docker controls every
+container and volume), so treat `SSH_PRIVATE_KEY` like a root credential. To revoke CI access, remove the `ledgerly-ci-deploy` line from `~/.ssh/authorized_keys` on the server and delete the
 `SSH_PRIVATE_KEY` secret.
 
 ## Changing the host (when the domain arrives)
 
 1. Point an `A` record for `ledgerly.<domain>` at the server's IP (with Cloudflare, "DNS only" first: the proxied mode
    breaks the Let's Encrypt challenge).
-2. Change `proxy.host` and `env.clear.APP_HOST` in `config/deploy.yml`, then deploy.
+2. Change the host in all three places, then deploy:
+   - `proxy.host` in `config/deploy.yml`;
+   - `env.clear.APP_HOST` in `config/deploy.yml`;
+   - `environment.url` of the `deploy` job in `.github/workflows/ci.yml` (the link GitHub shows for production deployments).
