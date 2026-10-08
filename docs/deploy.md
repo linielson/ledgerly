@@ -90,6 +90,24 @@ These steps happen in the Oracle Cloud console and over SSH; they are recorded h
    Don't run `netfilter-persistent save` while Docker is running: it would persist Docker's dynamic rules into
    `/etc/iptables/rules.v4`, and they'd conflict with the ones Docker recreates on boot.
 
+## Server log
+
+Everything done on the server by hand, in order, so it can be rebuilt or audited. Kamal-managed state (containers,
+proxy, accessory data) is not listed: `bin/kamal setup` recreates it.
+
+| Date       | Command (as `ubuntu`, over SSH)                                                                                            | Why                                                                         |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| 2026-10-08 | `curl -fsSL https://get.docker.com -o /tmp/get-docker.sh && sudo sh /tmp/get-docker.sh`                                    | Install Docker (29.8.2); Kamal only installs it when connecting as root     |
+| 2026-10-08 | `sudo usermod -aG docker ubuntu`                                                                                           | Run Docker without `sudo`, which Kamal requires for a non-root user         |
+| 2026-10-08 | `docker run --rm hello-world`                                                                                              | Check Docker works for `ubuntu`                                             |
+| 2026-10-08 | `docker run -d --rm --name porttest -p 80:80 nginx:alpine`, `curl http://<ip>/` from outside (200), `docker stop porttest` | Prove Docker-published ports pass Oracle's `iptables` without changes       |
+| 2026-10-08 | `sudo systemctl reboot`, then the same port test (200)                                                                     | Prove it survives a reboot (Docker re-inserts its `FORWARD` rules on start) |
+| 2026-10-08 | `docker rmi nginx:alpine hello-world`                                                                                      | Remove the test images                                                      |
+| 2026-10-08 | Appended the `ledgerly-ci-deploy` public key to `~/.ssh/authorized_keys`, then logged in with it                           | Dedicated key for the CI deploy job (see Continuous deployment)             |
+
+No `iptables` rule was added and `netfilter-persistent save` was never run. Oracle's own rules in
+`/etc/iptables/rules.v4` are untouched.
+
 ## Deploying
 
 First time (boots the proxy and the Postgres accessory, then the app):
@@ -111,6 +129,23 @@ curl -sS -o /dev/null -w "%{http_code}\n" https://<APP_HOST>/up     # 200
 bundle exec dotenv bin/kamal app logs
 bundle exec dotenv bin/kamal console                                  # Rails console on the server
 ```
+
+## Continuous deployment
+
+Every push to `main` that passes `scan_ruby`, `lint`, `format` and `test` runs the `deploy` job in
+`.github/workflows/ci.yml`, which runs `bin/kamal deploy` on a GitHub `ubuntu-24.04-arm` runner. Deploys show up on the
+repository's **Environments → production** page.
+
+| Piece          | How it's set up                                                                                                                                                                                                                                            |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registry login | `GITHUB_TOKEN` with `packages: write`, only in this job. The image is linked to the repo by the `org.opencontainers.image.source` label in the `Dockerfile`, and the package grants the repository write access (package settings → Manage Actions access) |
+| SSH            | A dedicated deploy key (`ledgerly-ci-deploy`, ed25519), not a personal key. Its public half is in the server's `~/.ssh/authorized_keys`; the private half exists only as the `SSH_PRIVATE_KEY` secret                                                      |
+| Host key       | Pinned: `SSH_KNOWN_HOSTS` holds the server's ed25519 key (fingerprint `SHA256:syVSQUpruRNfoQbdPRyfi4I+ffYyzVc8eX3vRyeJV74`), so a different server is rejected instead of trusted on first use                                                             |
+| App secrets    | `RAILS_MASTER_KEY` and `LEDGERLY_DATABASE_PASSWORD` as secrets of the `production` environment                                                                                                                                                             |
+| Concurrency    | One deploy at a time (`deploy-production`), and a running deploy is never cancelled                                                                                                                                                                        |
+
+To revoke CI access, remove the `ledgerly-ci-deploy` line from `~/.ssh/authorized_keys` on the server and delete the
+`SSH_PRIVATE_KEY` secret.
 
 ## Changing the host (when the domain arrives)
 
