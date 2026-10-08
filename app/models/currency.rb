@@ -12,13 +12,9 @@ class Currency < Data.define(:code, :symbol, :exponent)
     CURRENCIES.fetch(code.to_s.upcase) { raise UnknownCurrencyError, "Unknown currency: #{code.inspect}" }
   end
 
-  def clone
-    self
-  end
+  def clone(freeze: nil) = self
 
-  def dup
-    self
-  end
+  def dup = self
 
   private :with
 
