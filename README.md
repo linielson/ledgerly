@@ -59,7 +59,8 @@ bin/brakeman
 
 ## Deployment
 
-Kamal to an Oracle Cloud Always Free server: see [docs/deploy.md](docs/deploy.md).
+Live at https://ledgerly.linirosa.com, deployed by CI with Kamal to an Oracle Cloud Always Free server on every
+push to `main`: see [docs/deploy.md](docs/deploy.md).
 
 ## Conventions and decisions
 

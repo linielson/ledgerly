@@ -139,7 +139,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     environment:
       name: production
-      url: https://ledgerly.129-213-35-35.sslip.io
+      url: https://ledgerly.linirosa.com
     permissions:
       contents: read
       # Push the image to ghcr.io with GITHUB_TOKEN; the package is linked to this repo by a Dockerfile label.
