@@ -1,5 +1,7 @@
 # Deployment
 
+Live at https://ledgerly.linirosa.com (health check: `/up`).
+
 Ledgerly deploys with [Kamal](https://kamal-deploy.org) to a single server. Kamal builds a Docker image, pushes it to a
 registry, and on the server starts the new container behind `kamal-proxy`, which switches traffic only after the new
 container passes its health check (`GET /up`). The decision and its trade-offs are in
@@ -34,8 +36,10 @@ your Mac / CI runner (arm64)                    Oracle Cloud A1 server (arm64, U
   job runs on GitHub's free `ubuntu-24.04-arm` runners, so no emulation is involved.
 - **`ssh.user: ubuntu`.** Oracle's Ubuntu image has no root login. Kamal only installs Docker itself when it connects as
   root, so Docker was installed once by hand and `ubuntu` was added to the `docker` group.
-- **`proxy.ssl: true` + `host`.** `kamal-proxy` gets and renews a Let's Encrypt certificate for the host. Until the app
-  has a domain, the host is `ledgerly.<ip-with-dashes>.sslip.io`, which sslip.io resolves to that IP.
+- **`proxy.ssl: true` + `host`.** `kamal-proxy` gets and renews a Let's Encrypt certificate for the host,
+  `ledgerly.linirosa.com`. DNS lives at Hostinger: one `A` record, `ledgerly → 129.213.35.35`, TTL 300, and no `AAAA`
+  (the server has no IPv6). There's no CDN or proxy in front, so the Let's Encrypt HTTP challenge reaches kamal-proxy
+  directly. Until 2026-10-09 the host was `ledgerly.129-213-35-35.sslip.io`, which sslip.io resolves to that IP.
 - **`assume_ssl` + `force_ssl`.** TLS ends at `kamal-proxy`, which forwards plain HTTP to the container; `assume_ssl`
   tells Rails the original request was HTTPS, and `force_ssl` redirects HTTP, sets HSTS and marks cookies secure.
 - **The `/up` exceptions.** `kamal-proxy` health-checks the container directly over HTTP and by IP. Without the

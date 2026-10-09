@@ -13,12 +13,12 @@ servers:
 ssh:
   user: ubuntu
 
-# kamal-proxy terminates TLS with a Let's Encrypt certificate and routes by host. sslip.io resolves
-# ledgerly.<ip-with-dashes>.sslip.io to the server's IP until the app gets its own domain (ledgerly.lini.dev).
+# kamal-proxy terminates TLS with a Let's Encrypt certificate and routes by host. DNS: an A record for
+# ledgerly.linirosa.com points at the server (Hostinger). Changing it? See "Changing the host" in docs/deploy.md.
 # Health check: kamal-proxy only sends traffic to a new container after GET /up returns 200 (zero-downtime deploys).
 proxy:
   ssl: true
-  host: ledgerly.129-213-35-35.sslip.io
+  host: ledgerly.linirosa.com
 
 registry:
   server: ghcr.io
@@ -36,7 +36,7 @@ env:
     - LEDGERLY_DATABASE_PASSWORD
   clear:
     # Must match proxy.host: config.hosts only accepts this Host header (production.rb).
-    APP_HOST: ledgerly.129-213-35-35.sslip.io
+    APP_HOST: ledgerly.linirosa.com
     # The Postgres accessory below, reachable by container name on Kamal's Docker network.
     DB_HOST: ledgerly-db
     # Solid Queue runs inside Puma; one server is enough for now.
