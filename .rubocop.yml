@@ -1,8 +1,14 @@
 # Omakase Ruby styling for Rails
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+# House overrides on top of omakase. Why each one exists: docs/conventions.md#formatting.
+
+# Omakase turns off both indentation cops, so a body indented at the wrong depth passes lint and the
+# editor's format on save leaves it alone. Two spaces per level, and `private` methods indented one level
+# deeper (the Rails style omakase itself configures).
+Layout/IndentationWidth:
+  Enabled: true
+
+Layout/IndentationConsistency:
+  Enabled: true
+  EnforcedStyle: indented_internal_methods
