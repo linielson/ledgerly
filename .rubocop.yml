@@ -3,9 +3,17 @@ inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
 # House overrides on top of omakase. Why each one exists: docs/conventions.md#formatting.
 
-# Omakase turns off both indentation cops, so a body indented at the wrong depth passes lint and the
-# editor's format on save leaves it alone. Two spaces per level, and `private` methods indented one level
-# deeper (the Rails style omakase itself configures).
+# Omakase turns most Layout cops off, so mis-indented blocks, misaligned `end`s and stray spaces passed lint and
+# format on save left them alone. The whole department is on, so the editor fixes layout on save and CI catches it.
+Layout:
+  Enabled: true
+
+# Long lines are a judgement call (a long message string reads better on one line), not something to autocorrect.
+Layout/LineLength:
+  Enabled: false
+
+# Omakase disables these two by name, which beats the department switch above, so they are turned back on here.
+# Private methods are indented one level below `private`, as in Rails itself (the style omakase configures).
 Layout/IndentationWidth:
   Enabled: true
 
@@ -13,8 +21,18 @@ Layout/IndentationConsistency:
   Enabled: true
   EnforcedStyle: indented_internal_methods
 
-# Needed by the two above when autocorrecting: they move a misplaced block's first line and re-indent its body,
-# but only this cop moves the block's `end`. Without it, format on save leaves the body and `end` at the wrong depth.
+# A block's `end` lines up with the line that opens the block.
 Layout/BlockAlignment:
-  Enabled: true
   EnforcedStyleAlignWith: start_of_block
+
+# Newer Layout cops that RuboCop asks to opt into one by one.
+Layout/EmptyLinesAfterModuleInclusion:
+  Enabled: true
+Layout/LineContinuationLeadingSpace:
+  Enabled: true
+Layout/LineContinuationSpacing:
+  Enabled: true
+Layout/LineEndStringConcatenationIndentation:
+  Enabled: true
+Layout/SpaceBeforeBrackets:
+  Enabled: true
