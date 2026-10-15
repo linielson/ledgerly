@@ -12,3 +12,9 @@ Layout/IndentationWidth:
 Layout/IndentationConsistency:
   Enabled: true
   EnforcedStyle: indented_internal_methods
+
+# Needed by the two above when autocorrecting: they move a misplaced block's first line and re-indent its body,
+# but only this cop moves the block's `end`. Without it, format on save leaves the body and `end` at the wrong depth.
+Layout/BlockAlignment:
+  Enabled: true
+  EnforcedStyleAlignWith: start_of_block
