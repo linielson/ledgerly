@@ -80,7 +80,9 @@ One config in the repo, read by both CI and the editor; nobody configures format
 - Omakase is minimal on purpose. Quality cops (`rubocop-rspec`, `rubocop-performance`) are added by the tickets that
   need them.
 - One override in `.rubocop.yml`: the indentation cops (`Layout/IndentationWidth`, `Layout/IndentationConsistency`)
-  are on. Omakase turns them off, so a block body at the wrong depth passed lint and format on save did not fix it.
+  are on, with `Layout/BlockAlignment`. Omakase turns them off, so a block body at the wrong depth passed lint and format
+  on save did not fix it. The first two alone made autocorrect worse: they move a misplaced block's first line but not
+  its `end`, so the body ended up shallower than the line that opens it. `BlockAlignment` moves the `end` too.
   EditorConfig doesn't catch it either: it checks that indentation uses spaces in steps of two, not that the depth
   matches the nesting.
 - VS Code formats on save with this config (`.vscode/settings.json`); the recommended extensions are in
