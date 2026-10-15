@@ -79,12 +79,17 @@ One config in the repo, read by both CI and the editor; nobody configures format
   reformatted by Prettier.
 - Omakase is minimal on purpose. Quality cops (`rubocop-rspec`, `rubocop-performance`) are added by the tickets that
   need them.
-- One override in `.rubocop.yml`: the indentation cops (`Layout/IndentationWidth`, `Layout/IndentationConsistency`)
-  are on, with `Layout/BlockAlignment`. Omakase turns them off, so a block body at the wrong depth passed lint and format
-  on save did not fix it. The first two alone made autocorrect worse: they move a misplaced block's first line but not
-  its `end`, so the body ended up shallower than the line that opens it. `BlockAlignment` moves the `end` too.
-  EditorConfig doesn't catch it either: it checks that indentation uses spaces in steps of two, not that the depth
-  matches the nesting.
+- One override in `.rubocop.yml`: the whole **Layout** department is on, except `Layout/LineLength`. Omakase leaves
+  most Layout cops off, so a block body at the wrong depth, an `end` out of line with its `def` or `x =  y` passed
+  lint, and format on save left them alone. We first turned cops on one at a time and hit a new gap each week; the
+  indentation cops alone even made autocorrect worse, moving a block's first line but not its `end`. Every Layout cop
+  autocorrects, so the editor now fixes layout on save and CI catches whatever slips through.
+  - Omakase disables `Layout/IndentationWidth` and `Layout/IndentationConsistency` by name, which beats the department
+    switch, so `.rubocop.yml` turns them back on explicitly.
+  - Private methods sit one level below `private`, as in Rails itself.
+  - Long lines are left to judgement: a long error message reads better on one line.
+  - EditorConfig doesn't catch any of this: it checks that indentation uses spaces in steps of two, not that the depth
+    matches the nesting.
 - VS Code formats on save with this config (`.vscode/settings.json`); the recommended extensions are in
   `.vscode/extensions.json`.
 - CI checks all of it: `lint` (RuboCop) and `format` (Prettier and EditorConfig). So does `bin/ci`.
