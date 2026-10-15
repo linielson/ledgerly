@@ -52,6 +52,7 @@ class Money < Data.define(:cents, :currency)
 
   def <=>(other)
     return nil unless other.is_a?(Money)
+
     ensure_same_currency!(other)
 
     cents <=> other.cents
@@ -59,13 +60,46 @@ class Money < Data.define(:cents, :currency)
 
   def ==(other) = other.is_a?(Money) && currency == other.currency && cents == other.cents
 
-private
+  # rateio as fatias pelos pesos, divido pela soma dos pesos, a sobra vai para as primeiras fatias, cada fatia vira um Money"
+  def allocate(parts_or_ratios)
+    return abs.allocate(parts_or_ratios).map { |part| -part } if negative?
 
-  def ensure_money!(other)
-    raise ArgumentError, "must be a Money: #{other.inspect} (#{other.class})" unless other.is_a?(Money)
+    ratios = if parts_or_ratios.is_a?(Array)
+      ensure_ratios!(parts_or_ratios)
+      parts_or_ratios
+    else
+      ensure_positive_parts!(parts_or_ratios)
+      Array.new(parts_or_ratios, 1)
+    end
+
+    total_ratio = ratios.sum
+    shares = ratios.map { |ratio| cents * ratio / total_ratio }
+
+    remainder = cents - shares.sum
+    remainder.times { |i| shares[i] += 1 }
+
+    shares.map { |part_cents| Money.new(part_cents, currency) }
   end
 
-  def ensure_same_currency!(other)
-    raise CurrencyMismatchError, "currency mismatch: #{currency.code} and #{other.currency.code}" unless currency == other.currency
-  end
+  private
+
+    def ensure_money!(other)
+      raise ArgumentError, "must be a Money: #{other.inspect} (#{other.class})" unless other.is_a?(Money)
+    end
+
+    def ensure_same_currency!(other)
+      raise CurrencyMismatchError, "currency mismatch: #{currency.code} and #{other.currency.code}" unless currency == other.currency
+    end
+
+    def ensure_positive_parts!(number_of_parts)
+      return if number_of_parts.is_a?(Integer) && number_of_parts.positive?
+
+      raise ArgumentError, "parts must be a positive Integer, got #{number_of_parts.inspect} (#{number_of_parts.class})"
+    end
+
+    def ensure_ratios!(ratios)
+      return if ratios.is_a?(Array) && !ratios.empty? && ratios.all? { |ratio| ratio.is_a?(Integer) && ratio.positive? }
+
+      raise ArgumentError, "ratios must be a non-empty Array of positive Integers, got #{ratios.inspect} (#{ratios.class})"
+    end
 end
