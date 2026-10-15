@@ -79,7 +79,7 @@ One config in the repo, read by both CI and the editor; nobody configures format
   reformatted by Prettier.
 - Omakase is minimal on purpose. Quality cops (`rubocop-rspec`, `rubocop-performance`) are added by the tickets that
   need them.
-- One override in `.rubocop.yml`: the whole **Layout** department is on, except `Layout/LineLength`. Omakase leaves
+- One override in `.rubocop.yml`: the whole **Layout** department is on, with two exceptions (below). Omakase leaves
   most Layout cops off, so a block body at the wrong depth, an `end` out of line with its `def` or `x =  y` passed
   lint, and format on save left them alone. We first turned cops on one at a time and hit a new gap each week; the
   indentation cops alone even made autocorrect worse, moving a block's first line but not its `end`. Every Layout cop
@@ -87,7 +87,10 @@ One config in the repo, read by both CI and the editor; nobody configures format
   - Omakase disables `Layout/IndentationWidth` and `Layout/IndentationConsistency` by name, which beats the department
     switch, so `.rubocop.yml` turns them back on explicitly.
   - Private methods sit one level below `private`, as in Rails itself.
-  - Long lines are left to judgement: a long error message reads better on one line.
+  - Exception: `Layout/LineLength`. Long lines are left to judgement, because a long error message reads better on
+    one line.
+  - Exception: `Layout/SpaceInsidePercentLiteralDelimiters`, which omakase turns off on purpose. Rails writes
+    `%i[ windows jruby ]` with spaces, and this cop can only enforce the opposite.
   - EditorConfig doesn't catch any of this: it checks that indentation uses spaces in steps of two, not that the depth
     matches the nesting.
 - VS Code formats on save with this config (`.vscode/settings.json`); the recommended extensions are in

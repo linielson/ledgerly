@@ -12,6 +12,11 @@ Layout:
 Layout/LineLength:
   Enabled: false
 
+# Stays off, as omakase sets it: Rails writes `%i[ windows jruby ]` with spaces, and this cop can only enforce
+# `%i[windows jruby]`. Turning it on would rewrite the Rails style the rest of omakase uses for brackets.
+Layout/SpaceInsidePercentLiteralDelimiters:
+  Enabled: false
+
 # Omakase disables these two by name, which beats the department switch above, so they are turned back on here.
 # Private methods are indented one level below `private`, as in Rails itself (the style omakase configures).
 Layout/IndentationWidth:
