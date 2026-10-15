@@ -25,3 +25,4 @@ an area before changing it; when a change carries a new decision, add an ADR in 
 | [0009](0009-explicit-rspec-spec-types.md)               | RSpec with explicit spec types                                         | Accepted |
 | [0010](0010-deploy-with-kamal-to-oracle-always-free.md) | Deploy with Kamal to an Oracle Cloud Always Free server                | Accepted |
 | [0011](0011-money-equality-and-currency-type.md)        | Money equality returns false across currencies; Money takes a Currency | Accepted |
+| [0012](0012-allocation-ratios-and-negative-amounts.md)  | Allocation takes positive integer ratios and mirrors negative amounts  | Accepted |
