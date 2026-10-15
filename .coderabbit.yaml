@@ -22,8 +22,10 @@ reviews:
     - path: "spec/**"
       instructions: >-
         Check that tests cover failure paths, not just the happy path. Flag tests that pass without asserting
-        behavior and tests that depend on wall-clock time without freezing it. Spec types must be declared
-        explicitly (`type: :request`, `type: :model`).
+        behavior and tests that depend on wall-clock time without freezing it. Specs that require `rails_helper`
+        must declare their type explicitly (`type: :request`, `type: :model`). Plain Ruby specs require only
+        `spec_helper` and have no type, because `type:` is rspec-rails metadata and Rails is not loaded there
+        (ADR-0009).
     - path: ".github/workflows/**"
       instructions: >-
         Every action must be pinned to a full commit SHA with the version in a trailing comment. The workflow-level
