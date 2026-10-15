@@ -60,7 +60,6 @@ class Money < Data.define(:cents, :currency)
 
   def ==(other) = other.is_a?(Money) && currency == other.currency && cents == other.cents
 
-  # rateio as fatias pelos pesos, divido pela soma dos pesos, a sobra vai para as primeiras fatias, cada fatia vira um Money"
   def allocate(parts_or_ratios)
     return abs.allocate(parts_or_ratios).map { |part| -part } if negative?
 
