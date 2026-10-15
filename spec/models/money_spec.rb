@@ -331,4 +331,151 @@ RSpec.describe Money do
       end
     end
   end
+
+  describe "#allocate" do
+    let(:jpy) { Currency.fetch("JPY") }
+
+    def cents_of(parts) = parts.map(&:cents)
+
+    context "with a number of equal parts" do
+      it "gives the remainder cents to the first parts" do
+        expect(cents_of(Money.new(10_000, brl).allocate(3))).to eq([ 3334, 3333, 3333 ])
+      end
+
+      it "splits evenly when there is no remainder" do
+        expect(cents_of(Money.new(9000, brl).allocate(3))).to eq([ 3000, 3000, 3000 ])
+      end
+
+      it "returns the whole amount, in an array, for one part" do
+        expect(Money.new(10_000, brl).allocate(1)).to eq([ Money.new(10_000, brl) ])
+      end
+
+      it "gives zero to the last parts when there are fewer cents than parts" do
+        expect(cents_of(Money.new(2, brl).allocate(3))).to eq([ 1, 1, 0 ])
+      end
+
+      it "splits zero into zeros" do
+        expect(Money.zero(brl).allocate(3)).to eq([ Money.zero(brl) ] * 3)
+      end
+
+      it "mirrors a positive split for a negative amount" do
+        expect(cents_of(Money.new(-10_000, brl).allocate(3))).to eq([ -3334, -3333, -3333 ])
+      end
+
+      it "works in minor units for a currency without decimals, keeping the currency" do
+        expect(Money.new(100, jpy).allocate(3)).to eq([ Money.new(34, jpy), Money.new(33, jpy), Money.new(33, jpy) ])
+      end
+    end
+
+    context "with ratios" do
+      it "splits in proportion to the ratios" do
+        expect(cents_of(Money.new(10_000, brl).allocate([ 1, 2 ]))).to eq([ 3334, 6666 ])
+      end
+
+      it "gives the same result for equal ratios as for the same number of parts" do
+        money = Money.new(10_000, brl)
+
+        expect(money.allocate([ 1, 1, 1 ])).to eq(money.allocate(3))
+      end
+
+      it "gives the remainder cents to the first parts, whatever their ratio" do
+        # Exact shares are 6, 1.5 and 1.5: the floors add up to 8, and the 1 cent left goes to the first part.
+        expect(cents_of(Money.new(9, brl).allocate([ 4, 1, 1 ]))).to eq([ 7, 1, 1 ])
+      end
+
+      it "mirrors a positive split for a negative amount" do
+        expect(cents_of(Money.new(-10_000, brl).allocate([ 1, 2 ]))).to eq([ -3334, -6666 ])
+      end
+    end
+
+    context "when the number of parts is not a positive Integer" do
+      it "raises for zero" do
+        expect { Money.new(10_000, brl).allocate(0) }
+          .to raise_error(ArgumentError, "parts must be a positive Integer, got 0 (Integer)")
+      end
+
+      it "raises for a negative number" do
+        expect { Money.new(10_000, brl).allocate(-1) }
+          .to raise_error(ArgumentError, "parts must be a positive Integer, got -1 (Integer)")
+      end
+
+      it "raises for a Float" do
+        expect { Money.new(10_000, brl).allocate(2.5) }
+          .to raise_error(ArgumentError, "parts must be a positive Integer, got 2.5 (Float)")
+      end
+
+      it "raises for a numeric String" do
+        expect { Money.new(10_000, brl).allocate("3") }
+          .to raise_error(ArgumentError, 'parts must be a positive Integer, got "3" (String)')
+      end
+
+      it "raises for nil" do
+        expect { Money.new(10_000, brl).allocate(nil) }
+          .to raise_error(ArgumentError, "parts must be a positive Integer, got nil (NilClass)")
+      end
+    end
+
+    context "when the ratios are not all positive Integers" do
+      it "raises for an empty list" do
+        expect { Money.new(10_000, brl).allocate([]) }
+          .to raise_error(ArgumentError, "ratios must be a non-empty Array of positive Integers, got [] (Array)")
+      end
+
+      # A zero ratio first is the case that matters: the remainder goes to the first parts, so it would get a cent.
+      it "raises for a zero ratio" do
+        expect { Money.new(101, brl).allocate([ 0, 1, 1 ]) }
+          .to raise_error(ArgumentError, "ratios must be a non-empty Array of positive Integers, got [0, 1, 1] (Array)")
+      end
+
+      it "raises for a negative ratio" do
+        expect { Money.new(10_000, brl).allocate([ 1, -1 ]) }
+          .to raise_error(ArgumentError, "ratios must be a non-empty Array of positive Integers, got [1, -1] (Array)")
+      end
+
+      it "raises for a Float ratio" do
+        expect { Money.new(10_000, brl).allocate([ 1, 0.5 ]) }
+          .to raise_error(ArgumentError, "ratios must be a non-empty Array of positive Integers, got [1, 0.5] (Array)")
+      end
+    end
+
+    # Random cases from RSpec's seed: rerun a failure with `rspec --seed <seed>`, which RSpec prints after each run.
+    context "properties" do
+      let(:random) { Random.new(RSpec.configuration.seed) }
+
+      it "splits into equal parts that add up to the original, at most one cent apart, larger parts first" do
+        500.times do
+          money = Money.new(random.rand(-1_000_000..1_000_000), brl)
+          count = random.rand(1..12)
+          parts = money.allocate(count)
+          sizes = parts.map { |part| part.cents.abs }
+          example = "#{money.cents} cents in #{count} parts"
+
+          expect(parts.sum(Money.zero(brl))).to eq(money), "sum differs for #{example}"
+          expect(parts.size).to eq(count), "wrong number of parts for #{example}"
+          expect(parts.map(&:currency).uniq).to eq([ brl ]), "currency changed for #{example}"
+          expect(sizes.max - sizes.min).to be <= 1, "parts more than one cent apart for #{example}"
+          expect(sizes).to eq(sizes.sort.reverse), "a larger part comes after a smaller one for #{example}"
+        end
+      end
+
+      it "splits by ratios into parts that add up to the original, each within one cent of its exact share" do
+        500.times do
+          money = Money.new(random.rand(-1_000_000..1_000_000), brl)
+          ratios = Array.new(random.rand(1..6)) { random.rand(1..100) }
+          parts = money.allocate(ratios)
+          total_ratio = ratios.sum
+          example = "#{money.cents} cents by #{ratios}"
+
+          expect(parts.sum(Money.zero(brl))).to eq(money), "sum differs for #{example}"
+          expect(parts.size).to eq(ratios.size), "wrong number of parts for #{example}"
+          expect(parts.map(&:currency).uniq).to eq([ brl ]), "currency changed for #{example}"
+          parts.zip(ratios).each do |part, ratio|
+            # part / money == ratio / total_ratio, give or take one cent, without dividing (so no rounding here)
+            expect((part.cents * total_ratio - money.cents * ratio).abs)
+              .to be <= total_ratio, "part #{part.cents} is more than one cent off its share for #{example}"
+          end
+        end
+      end
+    end
+  end
 end
