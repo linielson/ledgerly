@@ -25,8 +25,9 @@ would give the cent to the part with the largest fraction instead.
 ## Decision
 
 - `allocate(n)` takes a positive Integer number of parts. `allocate(ratios)` takes a non-empty Array of positive
-  Integers. Anything else raises `ArgumentError`, with the value received in the message. A party that gets nothing
-  stays out of the list.
+  Integers. Anything else raises `ArgumentError`, with the value received in the message. A party that should get
+  nothing is left out of the ratios. That is different from a zero-cent part in the result: 2 cents in 3 parts gives
+  `[1, 1, 0]`, and the third part still exists.
 - A negative amount is allocated as its absolute value, and each part's sign is flipped, so the split mirrors the
   positive one.
 - The remainder goes to the first parts, one cent each, as ADR-0002 states, even when a later part has a larger
