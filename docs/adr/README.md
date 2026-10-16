@@ -26,3 +26,4 @@ an area before changing it; when a change carries a new decision, add an ADR in 
 | [0010](0010-deploy-with-kamal-to-oracle-always-free.md) | Deploy with Kamal to an Oracle Cloud Always Free server                | Accepted |
 | [0011](0011-money-equality-and-currency-type.md)        | Money equality returns false across currencies; Money takes a Currency | Accepted |
 | [0012](0012-allocation-ratios-and-negative-amounts.md)  | Allocation takes positive integer ratios and mirrors negative amounts  | Accepted |
+| [0013](0013-money-formatting-by-locale.md)              | Money is formatted by an explicit locale with integer arithmetic       | Accepted |
