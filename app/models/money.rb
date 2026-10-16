@@ -5,6 +5,11 @@ class Money < Data.define(:cents, :currency)
 
   class CurrencyMismatchError < ArgumentError; end
 
+  SUPPORTED_LOCALES = {
+    "pt-BR" => { thousands: ".", decimal: ",", space: " " },
+    "en" => { thousands: ",", decimal: ".", space: "" }
+  }.freeze
+
   def initialize(cents:, currency:)
     raise ArgumentError, "cents must be an Integer, got #{cents.inspect} (#{cents.class})" unless cents.is_a?(Integer)
     raise ArgumentError, "currency must be a Currency, got #{currency.inspect} (#{currency.class})" unless currency.is_a?(Currency)
@@ -78,6 +83,19 @@ class Money < Data.define(:cents, :currency)
     remainder.times { |i| shares[i] += 1 }
 
     shares.map { |part_cents| Money.new(part_cents, currency) }
+  end
+
+  def formatted(locale:)
+    return "-#{abs.formatted(locale:)}" if negative?
+
+    rules = SUPPORTED_LOCALES.fetch(locale) { raise ArgumentError, "Unknown locale: #{locale.inspect}" }
+
+    units, minor = cents.divmod(10**currency.exponent).map(&:to_s)
+    # Inserts the separator before every group of three digits, counting from the right
+    units = units.gsub(/(\d)(?=(\d{3})+(?!\d))/, "\\1#{rules[:thousands]}")
+
+    decimal_part = currency.exponent.zero? ? "" : "#{rules[:decimal]}#{minor.rjust(currency.exponent, "0")}"
+    "#{currency.symbol}#{rules[:space]}#{units}#{decimal_part}"
   end
 
   private
