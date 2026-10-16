@@ -478,4 +478,89 @@ RSpec.describe Money do
       end
     end
   end
+
+  describe "#formatted" do
+    let(:jpy) { Currency.fetch("JPY") }
+    let(:bhd) { Currency.fetch("BHD") }
+
+    context "in pt-BR" do
+      it "uses a dot for thousands, a comma for decimals and a space after the symbol" do
+        expect(Money.new(123_456, brl).formatted(locale: "pt-BR")).to eq("R$ 1.234,56")
+      end
+
+      it "groups every three digits" do
+        expect(Money.new(123_456_789, brl).formatted(locale: "pt-BR")).to eq("R$ 1.234.567,89")
+      end
+
+      it "pads the decimals with zeros below one real" do
+        expect(Money.new(5, brl).formatted(locale: "pt-BR")).to eq("R$ 0,05")
+      end
+
+      it "formats zero" do
+        expect(Money.zero(brl).formatted(locale: "pt-BR")).to eq("R$ 0,00")
+      end
+
+      # Amounts with no separator to insert matter for the code too: String#gsub! returns nil when nothing changes.
+      it "has no thousands separator below a thousand" do
+        expect(Money.new(99_999, brl).formatted(locale: "pt-BR")).to eq("R$ 999,99")
+      end
+
+      it "adds the first separator at exactly one thousand" do
+        expect(Money.new(100_000, brl).formatted(locale: "pt-BR")).to eq("R$ 1.000,00")
+      end
+
+      it "puts the minus sign before the symbol" do
+        expect(Money.new(-123_456, brl).formatted(locale: "pt-BR")).to eq("-R$ 1.234,56")
+      end
+    end
+
+    context "in en" do
+      it "uses a comma for thousands, a dot for decimals and no space after the symbol" do
+        expect(Money.new(123_456, usd).formatted(locale: "en")).to eq("$1,234.56")
+      end
+
+      it "puts the minus sign before the symbol" do
+        expect(Money.new(-123_456, usd).formatted(locale: "en")).to eq("-$1,234.56")
+      end
+    end
+
+    context "with each currency's exponent" do
+      it "has no decimal part, and no decimal separator, for a currency without decimals" do
+        expect(Money.new(1235, jpy).formatted(locale: "pt-BR")).to eq("¥ 1.235")
+      end
+
+      it "shows three decimals for a currency with three" do
+        expect(Money.new(1_234_567, bhd).formatted(locale: "en")).to eq("BD1,234.567")
+      end
+
+      it "pads three decimals with zeros" do
+        expect(Money.new(1_000_005, bhd).formatted(locale: "en")).to eq("BD1,000.005")
+      end
+    end
+
+    # The currency brings the symbol and the decimals; the locale brings the separators and where the symbol goes.
+    it "formats a currency in a locale that is not its own" do
+      expect(Money.new(123_456, usd).formatted(locale: "pt-BR")).to eq("$ 1.234,56")
+    end
+
+    # 2**53 + 1 is the first integer a Float can't hold: 9007199254740993 / 100.0 gives ...409.92, not ...409.93.
+    it "is exact beyond Float precision, so no Float is involved" do
+      expect(Money.new(9_007_199_254_740_993, brl).formatted(locale: "pt-BR")).to eq("R$ 90.071.992.547.409,93")
+    end
+
+    context "when the locale is not supported" do
+      it "raises for an unknown locale" do
+        expect { Money.new(123_456, brl).formatted(locale: "fr") }.to raise_error(ArgumentError, 'Unknown locale: "fr"')
+        expect { Money.new(123_456, brl).formatted(locale: "xyz") }.to raise_error(ArgumentError, 'Unknown locale: "xyz"')
+      end
+
+      it "raises for nil" do
+        expect { Money.new(123_456, brl).formatted(locale: nil) }.to raise_error(ArgumentError, "Unknown locale: nil")
+      end
+
+      it "requires the locale" do
+        expect { Money.new(123_456, brl).formatted }.to raise_error(ArgumentError, "missing keyword: :locale")
+      end
+    end
+  end
 end
