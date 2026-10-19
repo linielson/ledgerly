@@ -563,4 +563,115 @@ RSpec.describe Money do
       end
     end
   end
+
+  describe "#*" do
+    let(:jpy) { Currency.fetch("JPY") }
+
+    context "with a percentage" do
+      it "applies a 2% late fee as a BigDecimal" do
+        expect(Money.new(10_001, brl) * BigDecimal("0.02")).to eq(Money.new(200, brl))
+      end
+
+      it "applies a 2% late fee as a Rational" do
+        expect(Money.new(10_001, brl) * Rational(2, 100)).to eq(Money.new(200, brl))
+      end
+
+      it "applies a negative rate, as for a discount" do
+        expect(Money.new(1000, brl) * BigDecimal("-0.1")).to eq(Money.new(-100, brl))
+      end
+
+      it "keeps the currency" do
+        expect(Money.new(1000, usd) * BigDecimal("0.15")).to eq(Money.new(150, usd))
+      end
+    end
+
+    context "with an Integer" do
+      it "multiplies exactly" do
+        expect(Money.new(10_000, brl) * 3).to eq(Money.new(30_000, brl))
+      end
+
+      it "returns zero for zero" do
+        expect(Money.new(1000, brl) * 0).to eq(Money.zero(brl))
+      end
+    end
+
+    # Ruby rounds half up by default (Integer, Rational and BigDecimal alike), so half-even has to be asked for.
+    context "when the result falls exactly halfway between two cents (ADR-0014)" do
+      it "rounds to the even cent below" do
+        expect(Money.new(25, brl) * BigDecimal("0.5")).to eq(Money.new(12, brl))
+      end
+
+      it "rounds to the even cent above" do
+        expect(Money.new(35, brl) * BigDecimal("0.5")).to eq(Money.new(18, brl))
+      end
+
+      it "rounds a negative amount the same way as a positive one" do
+        expect(Money.new(-25, brl) * BigDecimal("0.5")).to eq(Money.new(-12, brl))
+      end
+
+      it "rounds a Rational result the same way" do
+        expect(Money.new(25, brl) * Rational(1, 2)).to eq(Money.new(12, brl))
+      end
+
+      it "rounds in minor units for a currency without decimals" do
+        expect(Money.new(1235, jpy) * BigDecimal("0.1")).to eq(Money.new(124, jpy))
+      end
+    end
+
+    context "when the result is not halfway" do
+      it "rounds to the nearest cent, not down" do
+        expect(Money.new(126, brl) * BigDecimal("0.1")).to eq(Money.new(13, brl))
+      end
+
+      it "rounds to the nearest cent, not up" do
+        expect(Money.new(124, brl) * BigDecimal("0.1")).to eq(Money.new(12, brl))
+      end
+    end
+
+    context "with daily interest" do
+      let(:amount) { Money.new(10_001, brl) }
+      let(:daily_rate) { BigDecimal("0.00033") }
+
+      it "rounds once when the rate for the whole period is computed first" do
+        expect(amount * (daily_rate * 17)).to eq(Money.new(56, brl))
+      end
+
+      # Documents the trap: rounding every day loses 5 cents on a single invoice.
+      it "gives a different result when each day is rounded" do
+        expect((amount * daily_rate) * 17).to eq(Money.new(51, brl))
+      end
+    end
+
+    # 9007199254740993 * 1.5 is 13510798882111489.5, which rounds to the even ...490. Through a Float it would be
+    # 13510798882111490.0 at best, after 9007199254740993 itself became ...992.
+    it "is exact beyond Float precision" do
+      expect(Money.new(9_007_199_254_740_993, brl) * BigDecimal("1.5")).to eq(Money.new(13_510_798_882_111_490, brl))
+      expect(Money.new(9_007_199_254_740_993, brl) * BigDecimal("1")).to eq(Money.new(9_007_199_254_740_993, brl))
+    end
+
+    context "when the multiplier is not exact" do
+      it "raises for a Float, suggesting a BigDecimal built from a String" do
+        expect { Money.new(10_001, brl) * 0.02 }
+          .to raise_error(ArgumentError, 'multiplier must be an Integer, BigDecimal or Rational, got 0.02 (Float). Use BigDecimal("0.02") instead')
+      end
+
+      it "raises for a numeric String" do
+        expect { Money.new(10_001, brl) * "0.02" }
+          .to raise_error(ArgumentError, 'multiplier must be an Integer, BigDecimal or Rational, got "0.02" (String)')
+      end
+
+      it "raises for nil" do
+        expect { Money.new(10_001, brl) * nil }
+          .to raise_error(ArgumentError, "multiplier must be an Integer, BigDecimal or Rational, got nil (NilClass)")
+      end
+
+      it "raises for another Money" do
+        expect { Money.new(10_001, brl) * Money.new(2, brl) }
+          .to raise_error(
+            ArgumentError,
+            'multiplier must be an Integer, BigDecimal or Rational, got #<data Money cents=2, currency=#<data Currency code="BRL", symbol="R$", exponent=2>> (Money)'
+          )
+      end
+    end
+  end
 end

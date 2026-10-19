@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "bigdecimal"
+
 class Money < Data.define(:cents, :currency)
   include Comparable
 
@@ -98,6 +100,13 @@ class Money < Data.define(:cents, :currency)
     "#{currency.symbol}#{rules[:space]}#{units}#{decimal_part}"
   end
 
+  def *(multiplier)
+    ensure_exact_multiplier!(multiplier)
+
+    rounded_cents = (cents * multiplier).round(half: :even).to_i
+    with(cents: rounded_cents)
+  end
+
   private
 
     def ensure_money!(other)
@@ -118,5 +127,13 @@ class Money < Data.define(:cents, :currency)
       return if ratios.is_a?(Array) && !ratios.empty? && ratios.all? { |ratio| ratio.is_a?(Integer) && ratio.positive? }
 
       raise ArgumentError, "ratios must be a non-empty Array of positive Integers, got #{ratios.inspect} (#{ratios.class})"
+    end
+
+    def ensure_exact_multiplier!(multiplier)
+      return if [ Integer, BigDecimal, Rational ].any? { |type| multiplier.is_a?(type) }
+
+      message = "multiplier must be an Integer, BigDecimal or Rational, got #{multiplier.inspect} (#{multiplier.class})"
+      message += ". Use BigDecimal(#{multiplier.to_s.inspect}) instead" if multiplier.is_a?(Float)
+      raise ArgumentError, message
     end
 end
