@@ -1,8 +1,43 @@
 # Omakase Ruby styling for Rails
 inherit_gem: { rubocop-rails-omakase: rubocop.yml }
 
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+# House overrides on top of omakase. Why each one exists: docs/conventions.md#formatting.
+
+# Omakase turns most Layout cops off, so mis-indented blocks, misaligned `end`s and stray spaces passed lint and
+# format on save left them alone. The whole department is on, so the editor fixes layout on save and CI catches it.
+Layout:
+  Enabled: true
+
+# Long lines are a judgement call (a long message string reads better on one line), not something to autocorrect.
+Layout/LineLength:
+  Enabled: false
+
+# Stays off, as omakase sets it: Rails writes `%i[ windows jruby ]` with spaces, and this cop can only enforce
+# `%i[windows jruby]`. Turning it on would rewrite the Rails style the rest of omakase uses for brackets.
+Layout/SpaceInsidePercentLiteralDelimiters:
+  Enabled: false
+
+# Omakase disables these two by name, which beats the department switch above, so they are turned back on here.
+# Private methods are indented one level below `private`, as in Rails itself (the style omakase configures).
+Layout/IndentationWidth:
+  Enabled: true
+
+Layout/IndentationConsistency:
+  Enabled: true
+  EnforcedStyle: indented_internal_methods
+
+# A block's `end` lines up with the line that opens the block.
+Layout/BlockAlignment:
+  EnforcedStyleAlignWith: start_of_block
+
+# Newer Layout cops that RuboCop asks to opt into one by one.
+Layout/EmptyLinesAfterModuleInclusion:
+  Enabled: true
+Layout/LineContinuationLeadingSpace:
+  Enabled: true
+Layout/LineContinuationSpacing:
+  Enabled: true
+Layout/LineEndStringConcatenationIndentation:
+  Enabled: true
+Layout/SpaceBeforeBrackets:
+  Enabled: true
