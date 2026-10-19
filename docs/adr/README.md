@@ -27,3 +27,4 @@ an area before changing it; when a change carries a new decision, add an ADR in 
 | [0011](0011-money-equality-and-currency-type.md)        | Money equality returns false across currencies; Money takes a Currency | Accepted |
 | [0012](0012-allocation-ratios-and-negative-amounts.md)  | Allocation takes positive integer ratios and mirrors negative amounts  | Accepted |
 | [0013](0013-money-formatting-by-locale.md)              | Money is formatted by an explicit locale with integer arithmetic       | Accepted |
+| [0014](0014-percentages-round-half-even.md)             | Percentages multiply Money by exact numbers and round half to even     | Accepted |
