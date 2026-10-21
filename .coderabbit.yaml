@@ -25,7 +25,10 @@ reviews:
         behavior and tests that depend on wall-clock time without freezing it. Specs that require `rails_helper`
         must declare their type explicitly (`type: :request`, `type: :model`). Plain Ruby specs require only
         `spec_helper` and have no type, because `type:` is rspec-rails metadata and Rails is not loaded there
-        (ADR-0009).
+        (ADR-0009). Money in specs: amounts are built as `Money` from integer cents and compared as `Money` or
+        integer cents, never as Floats or decimal strings; rates are `BigDecimal` built from a String or
+        `Rational`. Code that combines two amounts needs a case with different currencies, and rounding needs a
+        case exactly halfway between two cents (ADR-0011, ADR-0014).
     - path: ".github/workflows/**"
       instructions: >-
         Every action must be pinned to a full commit SHA with the version in a trailing comment. The workflow-level
