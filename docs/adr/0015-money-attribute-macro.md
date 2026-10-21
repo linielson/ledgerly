@@ -35,9 +35,15 @@ maps one column per attribute, so the options are:
 - The `nil`, error and currency rules are explicit, tested and readable in the repo.
 - The column names are a convention, as with `belongs_to :invoice` and `invoice_id`: `money_attribute :fee` expects
   `fee_cents` and `fee_currency`, and a model can declare several attributes. The macro doesn't check the columns when
-  the class loads, because the database may be unavailable then (the Docker build precompiles assets without one). If
-  the columns are missing, writing raises `ActiveModel::MissingAttributeError`, reading returns `nil`, and the
-  presence validation stops the save. Each model's round-trip spec is what catches a wrong name.
+  the class loads, because the database may be unavailable then (the Docker build precompiles assets without one).
+  Three cases differ:
+  - **Column absent from the table** (a wrong name): writing raises `ActiveModel::MissingAttributeError`, reading
+    returns `nil`, and the presence validation stops the save.
+  - **Column present but not loaded** (a query with `select(:id)`): reading raises `ActiveModel::MissingAttributeError`.
+  - **Column present and `NULL`**: reading returns `nil`, and the presence validation reports it.
+
+  Each model's round-trip spec is what catches a wrong name.
+
 - Queries go through the columns: `where(amount_cents: 1000, amount_currency: "BRL")`. A scope can wrap that when
   E4 needs it.
 - Specs create their own table inside the example, because PostgreSQL rolls DDL back with the transaction. No domain
