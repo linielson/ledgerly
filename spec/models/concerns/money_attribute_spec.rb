@@ -142,6 +142,9 @@ RSpec.describe MoneyAttribute, type: :model do
         t.column :amount_currency, "char(3)", null: false
         t.bigint :fee_cents, null: false
         t.column :fee_currency, "char(3)", null: false
+        # Same contract as every money table; the constraints themselves are exercised on the first table above.
+        t.check_constraint "amount_currency ~ '^[A-Z]{3}$'", name: "payment_amount_currency_format"
+        t.check_constraint "fee_currency ~ '^[A-Z]{3}$'", name: "payment_fee_currency_format"
       end
 
       stub_const("MoneyAttributePayment", Class.new(ApplicationRecord) do
