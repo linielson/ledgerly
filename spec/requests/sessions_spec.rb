@@ -22,10 +22,10 @@ RSpec.describe "Sessions", type: :request do
     end
 
     it "records the browser and IP of the new session" do
-      expect {
-        post session_path, params: { email_address: user.email_address, password: "password" },
-                           headers: { "User-Agent" => "Firefox/140.0" }
-      }.to change(user.sessions, :count).by(1)
+      credentials = { email_address: user.email_address, password: "password" }
+
+      expect { post session_path, params: credentials, headers: { "User-Agent" => "Firefox/140.0" } }
+        .to change(user.sessions, :count).by(1)
 
       expect(user.sessions.last).to have_attributes(ip_address: "127.0.0.1", user_agent: "Firefox/140.0")
     end
