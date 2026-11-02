@@ -4,6 +4,9 @@
 # belong in git's global ignore instead:
 # `$XDG_CONFIG_HOME/git/ignore` or `~/.config/git/ignore`
 
+# One exception: macOS Finder files. Untracked, they made the local editorconfig and undercover checks fail.
+.DS_Store
+
 # Ignore bundler config.
 /.bundle
 
