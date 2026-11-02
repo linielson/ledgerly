@@ -1,0 +1,24 @@
+<% content_for :title, "Sign in · Ledgerly" %>
+
+<div class="card">
+  <h1 class="heading">Sign in to Ledgerly</h1>
+
+  <%= render "shared/flash" %>
+
+  <%= form_with url: session_path, class: "space-y-4" do |form| %>
+    <div>
+      <%= form.label :email_address, "Email address", class: "label" %>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "you@example.com", value: params[:email_address], class: "input" %>
+    </div>
+
+    <div>
+      <%= form.label :password, class: "label" %>
+      <%# bcrypt only reads the first 72 bytes; has_secure_password rejects longer passwords (docs/authentication.md). %>
+      <%= form.password_field :password, required: true, autocomplete: "current-password", maxlength: 72, class: "input" %>
+    </div>
+
+    <%= form.submit "Sign in", class: "btn-primary" %>
+  <% end %>
+
+  <%= link_to "Forgot password?", new_password_path, class: "link" %>
+</div>

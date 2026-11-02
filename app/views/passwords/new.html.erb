@@ -1,0 +1,21 @@
+<% content_for :title, "Reset password · Ledgerly" %>
+
+<div class="card">
+  <div class="space-y-2">
+    <h1 class="heading">Forgot your password?</h1>
+    <p class="text-sm text-gray-600">Enter your email address and we'll send you a link to set a new one.</p>
+  </div>
+
+  <%= render "shared/flash" %>
+
+  <%= form_with url: passwords_path, class: "space-y-4" do |form| %>
+    <div>
+      <%= form.label :email_address, "Email address", class: "label" %>
+      <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "you@example.com", value: params[:email_address], class: "input" %>
+    </div>
+
+    <%= form.submit "Email reset instructions", class: "btn-primary" %>
+  <% end %>
+
+  <%= link_to "Back to sign in", new_session_path, class: "link" %>
+</div>
