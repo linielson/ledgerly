@@ -122,6 +122,17 @@ jobs:
         with:
           bundler-cache: true
 
+      # Request specs render the layout, which links app/assets/builds/application.{css,js}. Those files are built,
+      # not committed (.gitignore), so the job builds them the same way bin/dev does.
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: yarn
+
+      - name: Build JavaScript and CSS
+        run: yarn install --frozen-lockfile && yarn build && yarn build:css
+
       - name: Prepare DB
         run: bin/rails db:test:prepare
 
