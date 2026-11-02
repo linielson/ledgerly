@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="h-full">
   <head>
     <title><%= content_for(:title) || "Ledgerly" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -18,7 +18,22 @@
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="h-full bg-gray-50 text-gray-900 antialiased">
+    <% if authenticated? %>
+      <header class="border-b border-gray-200 bg-white">
+        <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+          <%= link_to "Ledgerly", root_path, class: "text-lg font-semibold tracking-tight text-gray-900" %>
+
+          <div class="flex items-center gap-4">
+            <span class="text-sm text-gray-600"><%= Current.user.email_address %></span>
+            <%= button_to "Sign out", session_path, method: :delete, class: "link" %>
+          </div>
+        </div>
+      </header>
+    <% end %>
+
+    <main class="mx-auto max-w-5xl px-4 py-12">
+      <%= yield %>
+    </main>
   </body>
 </html>
