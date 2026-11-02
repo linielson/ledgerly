@@ -23,7 +23,7 @@ require 'rspec/rails'
 # directory. Alternatively, in the individual `*_spec.rb` files, manually
 # require only the support files necessary.
 #
-# Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
+Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 # Ensures that the test database schema matches the current schema file.
 # If there are pending migrations it will invoke `db:test:prepare` to
@@ -64,6 +64,15 @@ RSpec.configure do |config|
   #
   # To enable this behaviour uncomment the line below.
   # config.infer_spec_type_from_file_location!
+
+  # Test data comes from fixtures (ADR-0016), loaded once for the whole suite and rolled back per example.
+  config.global_fixtures = :all
+
+  # travel_to / travel for time-dependent behaviour such as session expiry.
+  config.include ActiveSupport::Testing::TimeHelpers
+
+  # Rate limit counts live in the controllers' cache store (config/environments/test.rb); start every example at zero.
+  config.before { ActionController::Base.cache_store.clear }
 
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
