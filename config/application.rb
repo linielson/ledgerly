@@ -38,5 +38,9 @@ module Ledgerly
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # No image variants: libvips was dropped from the image (T-008) and nothing resizes uploads. Without this, every boot
+    # warns that image_processing is missing.
+    config.active_storage.variant_processor = :disabled
   end
 end

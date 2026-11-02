@@ -57,8 +57,9 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-  # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: "example.com" }
+  # Mailers have no request to take the host from, so links in emails (such as the password reset link) are built from
+  # APP_HOST, the same host config.hosts accepts below. Read without fetch: assets:precompile runs without it.
+  config.action_mailer.default_url_options = { host: ENV["APP_HOST"], protocol: "https" }
 
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via bin/rails credentials:edit.
   # config.action_mailer.smtp_settings = {
