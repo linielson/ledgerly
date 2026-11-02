@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-/* Named building blocks for the screens, so a style change happens here instead of in every view. They sit in the
-   components layer, so a utility class added in a view (such as mt-4) still wins over them. */
+/* Named building blocks for the screens, so a style change happens here instead of in every view. */
+/* They sit in the components layer, so a utility class added in a view (such as mt-4) still wins over them. */
 @layer components {
   .card {
     @apply mx-auto w-full max-w-sm space-y-6 rounded-lg bg-white p-8 shadow-sm ring-1 ring-gray-200;
