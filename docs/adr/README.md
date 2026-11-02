@@ -29,3 +29,4 @@ an area before changing it; when a change carries a new decision, add an ADR in 
 | [0013](0013-money-formatting-by-locale.md)              | Money is formatted by an explicit locale with integer arithmetic       | Accepted |
 | [0014](0014-percentages-round-half-even.md)             | Percentages multiply Money by exact numbers and round half to even     | Accepted |
 | [0015](0015-money-attribute-macro.md)                   | Models map Money to two columns with a `money_attribute` macro         | Accepted |
+| [0016](0016-fixtures-for-test-data.md)                  | Test data comes from fixtures                                          | Accepted |

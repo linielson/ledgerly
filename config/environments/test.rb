@@ -22,6 +22,11 @@ Rails.application.configure do
   config.consider_all_requests_local = true
   config.cache_store = :null_store
 
+  # rate_limit counts requests in the controller's cache store, captured when the controller class loads. With the
+  # null store above it would never trigger, so controllers get a memory store that rails_helper clears before every
+  # example. Fragment caching stays off (perform_caching is false), so nothing else uses it.
+  config.action_controller.cache_store = :memory_store
+
   # Render exception templates for rescuable exceptions and raise for other exceptions.
   config.action_dispatch.show_exceptions = :rescuable
 
