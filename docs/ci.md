@@ -62,6 +62,16 @@ removed before the production image; it is dismissed with that justification and
 **Ruby: any known vulnerability breaks the build.** `bundler-audit` stays blocking. Gems usually ship fixes quickly, and
 an exception can be recorded per advisory in versioned config if one is ever needed.
 
+**Advisories don't wait for a push.** The advisory database changes daily, so a build can go red with no code change: it
+happened twice during T-201 (rack and nokogiri on 2026-11-02, Rails 8.1.4.1 on 2026-11-05). CI therefore also runs every
+Monday at 09:00 UTC on `main` (`schedule`), and on demand from the Actions tab (`workflow_dispatch`). A scheduled run
+tests and scans only: the deploy job requires a push and dependency review requires a pull request. A failure shows up
+as a red run on `main` and in GitHub's notification email to the repository owner.
+
+Fixing a flagged gem: `bundle exec bundler-audit check --update` to see the advisories with a fresh database (a local
+copy goes stale), then `bundle update --conservative <gem>` so only that gem and what it strictly needs move, and check
+that the `Gemfile.lock` diff touches nothing else before committing.
+
 Dependabot version updates (weekly PRs for bundler, npm and GitHub Actions) are separate from security updates; see
 `.github/dependabot.yml`.
 
