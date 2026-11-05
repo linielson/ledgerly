@@ -50,6 +50,23 @@ RSpec.describe "Sessions", type: :request do
         expect(flash[:alert]).to eq("Try another email address or password.")
       end
 
+      # bcrypt only reads 72 bytes, so without this check anything appended to a 72-byte password would also work.
+      it "refuses a password longer than 72 bytes, even when its first 72 bytes are right" do
+        long = User.create!(email_address: "long@example.com", password: "a" * 72)
+
+        post session_path, params: { email_address: long.email_address, password: "a" * 72 + "anything" }
+
+        expect(response).to redirect_to(new_session_path)
+        expect(flash[:alert]).to eq("Try another email address or password.")
+      end
+
+      it "refuses a request without a password instead of failing" do
+        post session_path, params: { email_address: user.email_address }
+
+        expect(response).to redirect_to(new_session_path)
+        expect(flash[:alert]).to eq("Try another email address or password.")
+      end
+
       it "gives the same answer for an unknown email, so it doesn't reveal who has an account" do
         post session_path, params: { email_address: "nobody@example.com", password: "password" }
 

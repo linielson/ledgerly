@@ -15,4 +15,13 @@ RSpec.describe "PurgeExpiredSessionsJob", type: :job do
 
     expect(Session.where(id: [ idle, old, fresh ])).to contain_exactly(fresh)
   end
+
+  it "keeps sessions just inside both limits" do
+    idle_13_days = travel_to(13.days.ago) { user.sessions.create! }
+    created_29_days_ago = travel_to(29.days.ago) { user.sessions.create! }.tap(&:touch)
+
+    PurgeExpiredSessionsJob.perform_now
+
+    expect(Session.where(id: [ idle_13_days, created_29_days_ago ]).count).to eq(2)
+  end
 end

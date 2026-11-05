@@ -17,6 +17,15 @@ RSpec.describe ApplicationCable::Connection, type: :channel do
     expect { connect "/cable" }.to have_rejected_connection
   end
 
+  it "rejects an expired session, like the pages do" do
+    session = users(:one).sessions.create!
+    cookies.signed[:session_id] = session.id
+
+    travel 15.days do
+      expect { connect "/cable" }.to have_rejected_connection
+    end
+  end
+
   it "rejects a cookie for a session that no longer exists" do
     cookies.signed[:session_id] = 0
 

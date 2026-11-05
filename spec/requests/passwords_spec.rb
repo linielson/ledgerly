@@ -29,6 +29,16 @@ RSpec.describe "Password reset", type: :request do
       expect { post passwords_path, params: { email_address: user.email_address } }.not_to have_enqueued_mail
       expect(flash[:alert]).to eq("Try again later.")
     end
+
+    it "allows 10 requests per address in 3 minutes, even from different IPs" do
+      10.times do |i|
+        post passwords_path, params: { email_address: user.email_address }, env: { "REMOTE_ADDR" => "10.0.0.#{i}" }
+      end
+
+      expect { post passwords_path, params: { email_address: " ONE@example.com" }, env: { "REMOTE_ADDR" => "10.0.0.99" } }
+        .not_to have_enqueued_mail
+      expect(flash[:alert]).to eq("Try again later.")
+    end
   end
 
   describe "GET /passwords/:token/edit" do
@@ -68,9 +78,10 @@ RSpec.describe "Password reset", type: :request do
 
     it "signs the user out everywhere, so a stolen session dies with the old password" do
       sign_in_as(user)
+      user.sessions.create! # another device
 
       expect { patch password_path(user.password_reset_token), params: new_password }
-        .to change { user.sessions.count }.to(0)
+        .to change { user.sessions.count }.from(2).to(0)
     end
 
     it "refuses to use the same link twice" do
@@ -88,7 +99,18 @@ RSpec.describe "Password reset", type: :request do
       patch password_path(token), params: { password: "a new long password", password_confirmation: "different" }
 
       expect(response).to redirect_to(edit_password_path(token))
+      expect(flash[:alert]).to eq("Password confirmation doesn't match Password")
       expect(user.reload.authenticate("password")).to eq(user)
+    end
+
+    it "says why when the new password is refused for another reason" do
+      token = user.password_reset_token
+      too_long = "é" * 37 # 37 characters fit the form's maxlength of 72, but they are 74 bytes
+
+      patch password_path(token), params: { password: too_long, password_confirmation: too_long }
+
+      expect(response).to redirect_to(edit_password_path(token))
+      expect(flash[:alert]).to eq("Password is too long")
     end
   end
 
