@@ -4,6 +4,13 @@ on:
   pull_request:
   push:
     branches: [main]
+  # New advisories are published even when nobody pushes (bundler-audit failed twice in T-201 with no code change), so
+  # the checks also run weekly on main. The deploy job only runs on push and dependency_review only on pull requests,
+  # so a scheduled run never deploys.
+  schedule:
+    - cron: "0 9 * * 1" # Mondays at 09:00 UTC (06:00 in São Paulo)
+  # Lets anyone with write access re-run the checks by hand, for example right after an advisory is announced.
+  workflow_dispatch:
 
 permissions:
   contents: read
