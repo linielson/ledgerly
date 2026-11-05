@@ -2,10 +2,9 @@ class PasswordsController < ApplicationController
   allow_unauthenticated_access
   before_action :set_user_by_token, only: %i[ edit update ]
   rate_limit to: 10, within: 3.minutes, only: :create, with: -> { too_many_requests }
-  rate_limit(
-    to: 10, within: 3.minutes, only: :create, name: "per-address",
+  rate_limit to: 10, within: 3.minutes, only: :create,
+    name: "per-address",
     by: -> { params[:email_address].to_s.strip.downcase }, with: -> { too_many_requests }
-  )
 
   def new
   end
