@@ -1,7 +1,10 @@
 class PasswordsController < ApplicationController
   allow_unauthenticated_access
   before_action :set_user_by_token, only: %i[ edit update ]
-  rate_limit to: 10, within: 3.minutes, only: :create, with: -> { redirect_to new_password_path, alert: "Try again later." }
+  rate_limit to: 10, within: 3.minutes, only: :create, with: -> { too_many_requests }
+  rate_limit to: 10, within: 3.minutes, only: :create, name: "per-address",
+             by: -> { params[:email_address].to_s.strip.downcase },
+             with: -> { too_many_requests }
 
   def new
   end
@@ -18,11 +21,10 @@ class PasswordsController < ApplicationController
   end
 
   def update
-    if @user.update(params.permit(:password, :password_confirmation))
-      @user.sessions.destroy_all
+    if reset_password_and_sign_out_everywhere
       redirect_to new_session_path, notice: "Password has been reset."
     else
-      redirect_to edit_password_path(params[:token]), alert: "Passwords did not match."
+      redirect_to edit_password_path(params[:token]), alert: @user.errors.full_messages.to_sentence
     end
   end
 
@@ -32,5 +34,15 @@ class PasswordsController < ApplicationController
       @user = User.find_by_password_reset_token!(params[:token])
     rescue ActiveSupport::MessageVerifier::InvalidSignature
       redirect_to new_password_path, alert: "Password reset link is invalid or has expired."
+    end
+
+    def reset_password_and_sign_out_everywhere
+      User.transaction do
+        @user.update(params.permit(:password, :password_confirmation)) && @user.sessions.destroy_all
+      end
+    end
+
+    def too_many_requests
+      redirect_to new_password_path, alert: "Try again later."
     end
 end

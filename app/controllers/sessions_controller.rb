@@ -6,7 +6,8 @@ class SessionsController < ApplicationController
   end
 
   def create
-    if user = User.authenticate_by(params.permit(:email_address, :password))
+    password = params[:password].to_s
+    if password.bytesize <= ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED && (user = User.authenticate_by(email_address: params[:email_address], password: password))
       start_new_session_for user
       redirect_to after_authentication_url
     else
