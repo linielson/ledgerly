@@ -30,6 +30,20 @@ Layout/IndentationConsistency:
 Layout/BlockAlignment:
   EnforcedStyleAlignWith: start_of_block
 
+# Continuation lines are indented one step (two spaces) past the line they continue, never aligned with the first
+# argument. Alignment can land on any column, and EditorConfig requires indentation in steps of two, so the two
+# checks disagreed; a fixed step satisfies both. It also keeps diffs small: renaming a method doesn't re-indent its
+# arguments.
+Layout/ArgumentAlignment:
+  EnforcedStyle: with_fixed_indentation
+
+Layout/ParameterAlignment:
+  EnforcedStyle: with_fixed_indentation
+
+# Keyword arguments without braces (rate_limit to: 10, ...) follow the rule above instead of aligning their keys.
+Layout/HashAlignment:
+  EnforcedLastArgumentHashStyle: ignore_implicit
+
 # Newer Layout cops that RuboCop asks to opt into one by one.
 Layout/EmptyLinesAfterModuleInclusion:
   Enabled: true

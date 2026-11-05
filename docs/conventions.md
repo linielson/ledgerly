@@ -93,6 +93,10 @@ One config in the repo, read by both CI and the editor; nobody configures format
     `%i[ windows jruby ]` with spaces, and this cop can only enforce the opposite.
   - EditorConfig doesn't catch any of this: it checks that indentation uses spaces in steps of two, not that the depth
     matches the nesting.
+  - Continuation lines use a **fixed indentation** of one step, not alignment with the first argument
+    (`Layout/ArgumentAlignment`, `Layout/ParameterAlignment`). Aligned arguments can land on an odd column, which
+    EditorConfig rejects, so the two checks contradicted each other. With a fixed step, RuboCop's autocorrect always
+    produces what EditorConfig accepts, and renaming a method doesn't re-indent its arguments.
 - VS Code formats on save with this config (`.vscode/settings.json`); the recommended extensions are in
   `.vscode/extensions.json`.
 - CI checks all of it: `lint` (RuboCop) and `format` (Prettier and EditorConfig). So does `bin/ci`.
