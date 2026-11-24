@@ -62,6 +62,14 @@ removed before the production image; it is dismissed with that justification and
 **Ruby: any known vulnerability breaks the build.** `bundler-audit` stays blocking. Gems usually ship fixes quickly, and
 an exception can be recorded per advisory in versioned config if one is ever needed.
 
+**Brakeman: a newer version is a signal, not noise.** `bin/brakeman` keeps the Rails template's `--ensure-latest`: the
+build fails whenever a newer Brakeman exists, even with zero warnings. New releases add checks, and some of those
+checks cover what `bundler-audit` cannot see, such as the Ruby interpreter itself. On 2026-11-23 the weekly run failed
+only with "Brakeman 8.1.0 is not the latest version 8.1.1"; after the bump, 8.1.1 reported a critical remote code
+execution in Ruby 4.0.5 (CVE-2026-132825), fixed by upgrading to 4.0.10. Without the flag, that check would have
+waited for the weekly Dependabot PR. The cost is one red build per Brakeman release; fix it with
+`bundle update --conservative brakeman`, then deal with whatever the new version reports.
+
 **Advisories don't wait for a push.** The advisory database changes daily, so a build can go red with no code change: it
 happened twice during T-201 (rack and nokogiri on 2026-11-02, Rails 8.1.4.1 on 2026-11-05). CI therefore also runs every
 Monday at 09:00 UTC on `main` (`schedule`), and on demand from the Actions tab (`workflow_dispatch`). A scheduled run
