@@ -44,6 +44,10 @@ If the app loads without styles or JavaScript, check that both watchers are runn
 The defaults in `.env.example` match `compose.yaml`. If port 5434 is taken on your machine,
 change `DB_PORT` in `.env`; Docker Compose and Rails both read it.
 
+After switching Ruby versions, run `bundle install` and clear Bootsnap's cache with `rm -rf tmp/cache/bootsnap`.
+A cache built under the previous version can point at files the new install doesn't have, and every Rails command then
+fails with a `LoadError` for a standard library file such as `uri.rb`.
+
 ## Running the tests
 
 ```sh
