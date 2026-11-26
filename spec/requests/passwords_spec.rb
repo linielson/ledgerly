@@ -23,8 +23,8 @@ RSpec.describe "Password reset", type: :request do
       expect(flash[:notice]).to eq(same_answer)
     end
 
-    it "allows 10 requests in 3 minutes and refuses the 11th, so the form can't flood a mailbox" do
-      10.times { post passwords_path, params: { email_address: user.email_address } }
+    it "allows 10 requests per IP in 3 minutes, even for different addresses" do
+      10.times { |i| post passwords_path, params: { email_address: "person#{i}@example.com" } }
 
       expect { post passwords_path, params: { email_address: user.email_address } }.not_to have_enqueued_mail
       expect(flash[:alert]).to eq("Try again later.")
