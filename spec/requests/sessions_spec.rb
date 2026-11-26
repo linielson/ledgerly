@@ -30,6 +30,14 @@ RSpec.describe "Sessions", type: :request do
       expect(user.sessions.last).to have_attributes(ip_address: "127.0.0.1", user_agent: "Firefox/140.0")
     end
 
+    it "sets the session cookie to expire with the server's session limit" do
+      travel_to Time.utc(2026, 11, 26, 18, 14, 51) do
+        post session_path, params: { email_address: user.email_address, password: "password" }
+        cookie_headers = response.headers["Set-Cookie"]
+        expect(cookie_headers.find { |c| c.start_with?("session_id=") }).to include("expires=Sat, 26 Dec 2026 18:14:51 GMT")
+      end
+    end
+
     it "accepts the email with other casing and surrounding spaces" do
       post session_path, params: { email_address: "  ONE@Example.com ", password: "password" }
 
