@@ -70,4 +70,8 @@ group :test do
   gem "simplecov", require: false
   # Fails CI when changed code isn't covered by tests [https://github.com/grodowski/undercover]
   gem "undercover", require: false
+
+  # Provides RSpec- one-liners to test common Rails functionality that, if written by hand, would be much longer,
+  # more complex, and error-prone
+  gem "shoulda-matchers"
 end

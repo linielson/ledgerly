@@ -3,10 +3,27 @@
 require "rails_helper"
 
 RSpec.describe User, type: :model do
+  it { should validate_presence_of(:email_address) }
+
   it "stores the email stripped and downcased" do
     user = User.create!(email_address: "  New.Person@Example.COM ", password: "password")
 
     expect(user.email_address).to eq("new.person@example.com")
+  end
+
+  it "not stores the email with line break" do
+    expect { User.create!(email_address: "new.person@\nexample.com", password: "password") }
+      .to raise_error(ActiveRecord::RecordInvalid)
+  end
+
+  it "not stores the email with a space in the middle" do
+    expect { User.create!(email_address: "new.person@ example.com", password: "password") }
+      .to raise_error(ActiveRecord::RecordInvalid)
+  end
+
+  it "not stores the email without '@'" do
+    expect { User.create!(email_address: "new.personAexample.com", password: "password") }
+      .to raise_error(ActiveRecord::RecordInvalid)
   end
 
   it "finds a user by email with any casing" do
