@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="12" viewBox="0 0 840 12" role="img">
+<title>Software Engineering: 1 of 5 milestones complete</title>
+<!-- One segment per completed milestone. To record one, give the next segment fill="#d1453b" without
+     fill-opacity, update the title, and update the README and docs/engineering-progress.md. -->
+<rect x="0" y="0" width="160" height="12" rx="6" fill="#d1453b"/>
+<rect x="170" y="0" width="160" height="12" rx="6" fill="#8c959f" fill-opacity="0.3"/>
+<rect x="340" y="0" width="160" height="12" rx="6" fill="#8c959f" fill-opacity="0.3"/>
+<rect x="510" y="0" width="160" height="12" rx="6" fill="#8c959f" fill-opacity="0.3"/>
+<rect x="680" y="0" width="160" height="12" rx="6" fill="#8c959f" fill-opacity="0.3"/>
+</svg>
